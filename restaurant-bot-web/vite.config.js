@@ -8,7 +8,13 @@ export default defineConfig({
     host: true,
     port: 5174,
     allowedHosts: [
-      'craniometrically-pseudoconfessional-esmeralda.ngrok-free.dev'
+      'craniometrically-pseudoconfessional-esmeralda.ngrok-free.dev',
+      'whatsappchatbot-production-d846.up.railway.app'
+    ]
+  },
+  preview: {
+    allowedHosts: [
+      'whatsappchatbot-production-d846.up.railway.app'
     ]
   }
 })
