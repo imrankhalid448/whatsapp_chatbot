@@ -33,11 +33,11 @@ app.get('/webhook', (req, res) => {
 
 // Webhook to receive messages
 
-// WhatsApp webhook with backend bot engine integration
-const botEngine = require('./bot/engine');
+// Webhook to receive messages and auto-reply
 app.post('/webhook', async (req, res) => {
   const body = req.body;
   if (body.object) {
+    // Check for WhatsApp messages
     if (
       body.entry &&
       Array.isArray(body.entry) &&
@@ -48,12 +48,13 @@ app.post('/webhook', async (req, res) => {
       Array.isArray(body.entry[0].changes[0].value.messages)
     ) {
       const message = body.entry[0].changes[0].value.messages[0];
-      const from = message.from;
+      const from = message.from; // WhatsApp user phone number
       const msgBody = message.text && message.text.body ? message.text.body : '';
 
-      // Use backend bot engine to process message
-      const reply = botEngine.processMessage(from, msgBody);
+      // Auto-reply logic (customize as needed)
+      const reply = `You said: ${msgBody}`;
 
+      // Send reply using WhatsApp API
       try {
         const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
         await axios.post(

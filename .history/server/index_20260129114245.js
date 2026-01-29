@@ -5,13 +5,12 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.use(bodyParser.json());
-
 // Root route for health/status check
 app.get('/', (req, res) => {
-  res.status(200).send('Whatsapp Chatbot API is running.');
+  res.status(200).send('WhatsApp Chatbot server is running.');
 });
+
+app.use(bodyParser.json());
 
 // Webhook verification
 app.get('/webhook', (req, res) => {
@@ -32,48 +31,10 @@ app.get('/webhook', (req, res) => {
 });
 
 // Webhook to receive messages
-
-// WhatsApp webhook with backend bot engine integration
-const botEngine = require('./bot/engine');
 app.post('/webhook', async (req, res) => {
   const body = req.body;
   if (body.object) {
-    if (
-      body.entry &&
-      Array.isArray(body.entry) &&
-      body.entry[0].changes &&
-      Array.isArray(body.entry[0].changes) &&
-      body.entry[0].changes[0].value &&
-      body.entry[0].changes[0].value.messages &&
-      Array.isArray(body.entry[0].changes[0].value.messages)
-    ) {
-      const message = body.entry[0].changes[0].value.messages[0];
-      const from = message.from;
-      const msgBody = message.text && message.text.body ? message.text.body : '';
-
-      // Use backend bot engine to process message
-      const reply = botEngine.processMessage(from, msgBody);
-
-      try {
-        const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-        await axios.post(
-          url,
-          {
-            messaging_product: 'whatsapp',
-            to: from,
-            text: { body: reply }
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-      } catch (error) {
-        console.error('Error sending WhatsApp reply:', error.message);
-      }
-    }
+    // Handle WhatsApp messages here
     res.sendStatus(200);
   } else {
     res.sendStatus(404);
