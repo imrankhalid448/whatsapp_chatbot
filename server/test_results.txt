@@ -1,0 +1,92 @@
+Starting Bot Simulation...
+
+--- [User: test_user_1] Message: "hi" ---
+Bot (Button): Welcome to JOANA Fast Food
+
+Branches:
+
+1. Al Malqa District
+   503100799
+
+2. Al Malqa District
+   560051207
+
+3. Al Shifa District
+   559852700
+
+4. Al Shifa District
+   507300126
+
+5. Al Qadisiya District
+   502004815
+
+6. Al Hamra Dist
+   500110612
+
+7. Ashbilan Dist
+   590511988
+
+Please choose an option:
+Buttons: [Order via Text (ID: order_text)], [Order via Voice (ID: order_voice)]
+
+--- [User: test_user_1] Message: "order_text" ---
+Bot (Button): Please choose a category:
+Here is our menu
+Buttons: [Burgers & Meals (ID: cat_burgers_meals)], [Sandwiches & Wraps (ID: cat_sandwiches_wraps)], [Snacks & Sides (ID: cat_snacks_sides)]
+
+--- [User: test_user_1] Message: "cat_burgers_meals" ---
+Bot (Button): Here are our Burgers & Meals:
+Select an option
+Buttons: [Chicken Burger (ID: item_1)], [Beef Burger (ID: item_2)], [Regular Zinger Burger (ID: item_3)], [More (ID: more_items)]
+
+--- [User: test_user_1] Message: "item_1" ---
+Bot (Button): How many Chicken Burger?
+Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [More (ID: more_qty)]
+
+--- [User: test_user_1] Message: "qty_2" ---
+Bot (Button): Added 2x Chicken Burger to your cart
+
+**Order Summary**
+• Chicken Burger x2 = 19 SAR
+*Total: 19 SAR*
+Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_1] Message: "add 3 beef burgers" ---
+Bot (Button): Added 3x Beef Burger to your cart
+
+**Order Summary**
+• Chicken Burger x2 = 19 SAR
+• Beef Burger x3 = 28.5 SAR
+*Total: 47.5 SAR*
+Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_1] Message: "and 2 Zingerr" ---
+Bot (Button): Added 2x Regular Zinger Burger to your cart
+
+**Order Summary**
+• Chicken Burger x2 = 19 SAR
+• Beef Burger x3 = 28.5 SAR
+• Regular Zinger Burger x2 = 27 SAR
+*Total: 74.5 SAR*
+Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_1] Message: "show me the menu" ---
+Bot (Button): Here is our menu
+Buttons: [Burgers & Meals (ID: cat_burgers_meals)], [Sandwiches & Wraps (ID: cat_sandwiches_wraps)], [Snacks & Sides (ID: cat_snacks_sides)]
+
+--- [User: test_user_1] Message: "cat_snacks_sides" ---
+Bot (Button): Here are our Snacks & Sides:
+Select an option
+Buttons: [Popcorn (ID: item_44)], [Sweet Potato (ID: item_17)], [Sweet Corn (ID: item_18)], [More (ID: more_items)]
+
+--- [User: test_user_1] Message: "finish_order" ---
+Bot (Text): **Order Summary**
+• Chicken Burger x2 = 19 SAR
+• Beef Burger x3 = 28.5 SAR
+• Regular Zinger Burger x2 = 27 SAR
+*Total: 74.5 SAR*
+
+Your order has been completed.

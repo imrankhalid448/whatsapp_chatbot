@@ -49,14 +49,7 @@ app.post('/webhook', async (req, res) => {
     ) {
       const message = body.entry[0].changes[0].value.messages[0];
       const from = message.from;
-      let msgBody = '';
-
-      if (message.type === 'text') {
-        msgBody = message.text.body;
-      } else if (message.type === 'interactive' && message.interactive.button_reply) {
-        // Handle WhatsApp button click
-        msgBody = message.interactive.button_reply.id; // Use ID for exact logic, or .title
-      }
+      const msgBody = message.text && message.text.body ? message.text.body : '';
 
       // Use backend bot engine to process message
       const reply = botEngine.processMessage(from, msgBody);
@@ -77,7 +70,7 @@ app.post('/webhook', async (req, res) => {
                 buttons: reply.buttons.map((btn, idx) => ({
                   type: 'reply',
                   reply: {
-                    id: btn.id || `btn_${idx + 1}`,
+                    id: btn.id || `btn_${idx+1}`,
                     title: btn.title
                   }
                 }))
