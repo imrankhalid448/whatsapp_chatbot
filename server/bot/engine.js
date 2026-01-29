@@ -253,32 +253,53 @@ function processMessage(userId, text) {
         // Accept both button text and typed text
         const lower = cleanText.toLowerCase();
         if (lower === t.order_text.toLowerCase() || lower === t.order_voice.toLowerCase()) {
-            // Show main categories
-            let menuMsg = t.choose_category + '\n';
-            menuMsg += `- ${t.burgers_meals}\n- ${t.sandwiches_wraps}\n- ${t.snacks_sides}`;
+            // Show main categories as buttons
             state.step = 'AWAIT_CATEGORY';
-            return menuMsg;
+            return {
+                type: 'button',
+                body: t.choose_category + '\n' + t.here_is_menu,
+                buttons: [
+                    { id: 'cat_burgers_meals', title: t.burgers_meals },
+                    { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                    { id: 'cat_snacks_sides', title: t.snacks_sides }
+                ]
+            };
         }
         // If user types a category directly
         if ([t.burgers_meals.toLowerCase(), t.sandwiches_wraps.toLowerCase(), t.snacks_sides.toLowerCase()].includes(lower)) {
             state.step = 'AWAIT_CATEGORY';
-            return t.choose_category + `\n- ${t.burgers_meals}\n- ${t.sandwiches_wraps}\n- ${t.snacks_sides}`;
+            return {
+                type: 'button',
+                body: t.choose_category + '\n' + t.here_is_menu,
+                buttons: [
+                    { id: 'cat_burgers_meals', title: t.burgers_meals },
+                    { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                    { id: 'cat_snacks_sides', title: t.snacks_sides }
+                ]
+            };
         }
         // Prompt again if not recognized
-        return t.choose_option + `\n- ${t.order_text}\n- ${t.order_voice}`;
+        return {
+            type: 'button',
+            body: t.choose_option,
+            buttons: [
+                { id: 'order_text', title: t.order_text },
+                { id: 'order_voice', title: t.order_voice }
+            ]
+        };
     }
 
     if (state.step === 'AWAIT_CATEGORY') {
         const lower = cleanText.toLowerCase();
         let categoryIds = null;
         let title = '';
-        if (lower === t.burgers_meals.toLowerCase()) {
+        if (lower === t.burgers_meals.toLowerCase() || lower === 'cat_burgers_meals') {
             categoryIds = ['burgers', 'meals'];
             title = t.burgers_meals;
-        } else if (lower === t.sandwiches_wraps.toLowerCase()) {
+        } else if (lower === t.sandwiches_wraps.toLowerCase() || lower === 'cat_sandwiches_wraps') {
             categoryIds = ['sandwiches', 'wraps'];
             title = t.sandwiches_wraps;
-        } else if (lower === t.snacks_sides.toLowerCase()) {
+        } else if (lower === t.snacks_sides.toLowerCase() || lower === 'cat_snacks_sides') {
             categoryIds = ['sides', 'drinks', 'juices'];
             title = t.snacks_sides;
         }
@@ -292,16 +313,25 @@ function processMessage(userId, text) {
             state.currentCategory = lower;
             state.itemOffset = 0;
             state.allCategoryItems = allItems;
-            // Show first 2 items
-            let msg = `${t.here_are} ${title}:\n`;
-            allItems.slice(0, 2).forEach((item, idx) => {
-                msg += `${idx + 1}. ${item.name[currentLang]} - ${item.price} SAR\n`;
-            });
-            if (allItems.length > 2) msg += t.more;
-            return msg;
+            // Show first 2 items as buttons
+            const buttons = allItems.slice(0, 2).map(item => ({ id: `item_${item.id}`, title: item.name[currentLang] }));
+            if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
+            return {
+                type: 'button',
+                body: `${t.here_are} ${title}:`,
+                buttons
+            };
         }
         // Prompt again if not recognized
-        return t.choose_category + `\n- ${t.burgers_meals}\n- ${t.sandwiches_wraps}\n- ${t.snacks_sides}`;
+        return {
+            type: 'button',
+            body: t.choose_category,
+            buttons: [
+                { id: 'cat_burgers_meals', title: t.burgers_meals },
+                { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                { id: 'cat_snacks_sides', title: t.snacks_sides }
+            ]
+        };
     }
 
     // Step 4: Item selection, quantity, and cart management
