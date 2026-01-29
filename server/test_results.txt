@@ -1,6 +1,6 @@
-Starting Singular/Plural Category Fix Simulation...
+Starting Arabic Language Switch Simulation...
 
---- [User: test_user_plural_fix] Message: "hi" ---
+--- [User: test_user_arabic_switch] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,14 +29,12 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_plural_fix] Message: "44 wraps and 33 snacks" ---
-[DEBUG] Processing intent: CATEGORY (Qty: 44). Remaining: 1
-Bot (Text): For your 44 wraps, please select what you would like to add.
-Bot (Button): Select an option
-Buttons: [Spicy Tortilla Zinge (Len: 20)], [Regular Tortilla Zin (Len: 20)], [More (Len: 4)]
+--- [User: test_user_arabic_switch] Message: "أهلاً" ---
+Bot (Text): تفضل القائمة
+Bot (Button): اختر خياراً
+Buttons: [برجر و وجبات (Len: 12)], [سندويشات و لفائف (Len: 16)], [مقبلات و وجبات خفيفة (Len: 20)]
 
---- [User: test_user_plural_fix] Message: "1 sandwich" ---
-[DEBUG] Processing intent: CATEGORY (Qty: 1). Remaining: 1
-Bot (Text): Thank you for ordering 1 Sandwiches. Please tell us which type you would like.
-Bot (Button): Select an option
-Buttons: [Kibdah Sandwich (Len: 15)], [Egg Sandwich (Len: 12)], [More (Len: 4)]
+--- [User: test_user_arabic_switch] Message: "١ برجر دجاج" ---
+[DEBUG] Processing intent: ITEM (Qty: 1). Remaining: 0
+Bot (Button): كيف تفضل برجر دجاج?
+Buttons: [حار (Len: 3)], [بدون حار (Len: 8)]

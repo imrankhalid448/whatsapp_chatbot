@@ -17,20 +17,20 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_plural_fix';
+const TEST_USER = 'test_user_arabic_switch';
 
-console.log("Starting Singular/Plural Category Fix Simulation...");
+console.log("Starting Arabic Language Switch Simulation...");
 
-// 1. Initial greeting
+// 1. Start in English
 simulate(TEST_USER, "hi");
 
-// 2. User orders "wraps" (previously rejected as unknown "wrap")
+// 2. Switch to Arabic with greeting
 // EXPECTED:
-// - Prompt for Wraps category "Please select which wrap..."
-// - NOT "Sorry, wrap is not on our menu"
-simulate(TEST_USER, "44 wraps and 33 snacks");
+// - Switch language to 'ar'
+// - Show Main Menu in Arabic
+simulate(TEST_USER, "أهلاً");
 
-// 3. User says "sandwich" (Singular)
+// 3. Order in Arabic
 // EXPECTED:
-// - Prompt for Sandwiches category (Mapped to 'sandwiches')
-simulate(TEST_USER, "1 sandwich");
+// - Understand Arabic numbers and items
+simulate(TEST_USER, "١ برجر دجاج"); 

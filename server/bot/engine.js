@@ -204,11 +204,15 @@ function processMessage(userId, text) {
     const easternDigits = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
     easternDigits.forEach((regex, i) => normalizedInput = normalizedInput.replace(regex, i));
 
-    let currentLang = state.language;
-    if (!currentLang) {
-        currentLang = /[\u0600-\u06FF]/.test(text) ? 'ar' : 'en';
-        state.language = currentLang;
+    // DYNAMIC LANGUAGE DETECTION: Check every message
+    const isArabicInput = /[\u0600-\u06FF]/.test(text);
+    if (isArabicInput) {
+        state.language = 'ar';
+    } else if (!state.language) {
+        // Default to English if no language set and input is not Arabic
+        state.language = 'en';
     }
+    const currentLang = state.language;
 
     const t = translations[currentLang];
     const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
