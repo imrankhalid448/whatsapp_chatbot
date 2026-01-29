@@ -321,8 +321,11 @@ function processMessage(userId, text) {
     }
 
     if (state.step === 'ITEM_SPICY') {
-        if (cleanText === 'spicy_yes' || cleanText === 'spicy_no') {
-            const preference = cleanText === 'spicy_yes' ? 'spicy' : 'non-spicy';
+        let preference = null;
+        if (cleanText === 'spicy_yes' || cleanText === 'spicy' || cleanText === 'hot') preference = 'spicy';
+        if (cleanText === 'spicy_no' || cleanText === 'non-spicy' || cleanText === 'regular' || cleanText === 'normal' || cleanText === 'non_spicy') preference = 'non-spicy';
+
+        if (preference) {
             const itemWithPref = { ...state.currentItem, preference };
             const qty = state.currentItem.qty || 1;
             for (let i = 0; i < qty; i++) state.cart.push(itemWithPref);
@@ -454,8 +457,27 @@ function processMessage(userId, text) {
     if (cleanText === 'finish_order') {
         if (state.cart.length === 0) return [t.cart_empty];
         const summary = getOrderSummaryText(state.cart, currentLang, t);
-        resetSession(userId);
-        return [summary, t.order_completed];
+        state.step = 'PAYMENT';
+        return [summary, { type: 'button', body: t.choose_payment, buttons: [{ id: 'pay_cash', title: t.cash }, { id: 'pay_online', title: t.online }] }];
+    }
+
+    if (state.step === 'PAYMENT' || cleanText === 'pay_cash' || cleanText === 'pay_online') {
+        if (cleanText === 'pay_cash' || cleanText === 'pay_online') {
+            const paymentMethod = cleanText === 'pay_cash' ? t.cash_on_delivery : t.online;
+            let paymentDetails = `\n${t.payment_method}: ${paymentMethod}`;
+
+            if (cleanText === 'pay_online') {
+                const total = state.cart.reduce((sum, item) => sum + item.price, 0);
+                const paymentLink = `https://joana-fastfood.com/pay?amount=${total}&ref=${userId}`;
+                paymentDetails += `\n\nPayment Link: ${paymentLink}`;
+            }
+
+            const summary = getOrderSummaryText(state.cart, currentLang, t);
+            const finalMsg = `${t.order_confirmed}\n${summary}${paymentDetails}\n\n${t.thank_you}`;
+
+            resetSession(userId);
+            return [finalMsg, { type: 'button', body: t.new_order_prompt, buttons: [{ id: 'new_order', title: t.new_order }] }];
+        }
     }
 
     // 4. NLP & Intent Fallback

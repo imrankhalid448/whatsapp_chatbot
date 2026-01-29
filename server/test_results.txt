@@ -1,6 +1,81 @@
-Starting Arabic NLP Parity Simulation...
+Starting Payment Flow Simulation...
 
---- [User: test_user_arabic_nlp_fix] Message: "أهلاً" ---
+--- [User: test_user_payment_en] Message: "hi" ---
+Bot (Button): Welcome to JOANA Fast Food
+
+Branches:
+
+1. Al Malqa District
+   503100799
+
+2. Al Malqa District
+   560051207
+
+3. Al Shifa District
+   559852700
+
+4. Al Shifa District
+   507300126
+
+5. Al Qadisiya District
+   502004815
+
+6. Al Hamra Dist
+   500110612
+
+7. Ashbilan Dist
+   590511988
+
+Please choose an option:
+Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
+
+--- [User: test_user_payment_en] Message: "2 coffee" ---
+[DEBUG] Processing intent: ITEM (Qty: 2). Remaining: 0
+Bot (Text): Added 2x Coffee to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Drinks*
+  1. Coffee
+  2 x 3 = 6 SAR
+
+────────────────
+*Total: 6 SAR*
+
+Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
+
+--- [User: test_user_payment_en] Message: "finish_order" ---
+Bot (Text): *Order Summary*
+────────────────
+*📦 Drinks*
+  1. Coffee
+  2 x 3 = 6 SAR
+
+────────────────
+*Total: 6 SAR*
+Bot (Button): Choose payment method:
+Buttons: [Cash (Len: 4)], [Online Payment (Len: 14)]
+
+--- [User: test_user_payment_en] Message: "pay_online" ---
+Bot (Text): Order Confirmed
+*Order Summary*
+────────────────
+*📦 Drinks*
+  1. Coffee
+  2 x 3 = 6 SAR
+
+────────────────
+*Total: 6 SAR*
+Payment Method: Online Payment
+
+Payment Link: https://joana-fastfood.com/pay?amount=6&ref=test_user_payment_en
+
+Thank you for your order
+Bot (Button): Would you like to place another order?
+Buttons: [New Order (Len: 9)]
+
+--- [User: test_user_payment_ar] Message: "أهلاً" ---
 Bot (Button): مرحبا بكم في مطعم جوانا للوجبات السريعة
 
 الفروع:
@@ -29,19 +104,50 @@ Bot (Button): مرحبا بكم في مطعم جوانا للوجبات السر
 الرجاء اختيار خيار:
 Buttons: [الطلب نصياً (Len: 11)], [الطلب صوتياً (Len: 12)]
 
---- [User: test_user_arabic_nlp_fix] Message: "9 برغر و9 لفائف و9 قهوة" ---
-[DEBUG] Processing intent: CATEGORY (Qty: 9). Remaining: 2
-Bot (Text): شكراً لطلبك 9 البرجر. يرجى اختيار النوع الذي تفضله.
-Bot (Button): اختر خياراً
-Buttons: [برجر دجاج (Len: 9)], [برجر لحم (Len: 8)], [المزيد (Len: 6)]
+--- [User: test_user_payment_ar] Message: "٢ برجر دجاج" ---
+[DEBUG] Processing intent: ITEM (Qty: 2). Remaining: 0
+Bot (Button): كيف تفضل برجر دجاج?
+Buttons: [حار (Len: 3)], [بدون حار (Len: 8)]
 
---- [User: test_user_arabic_nlp_fix] Message: "تورتيلا زنجر حار" ---
-[DEBUG] Processing intent: ITEM (Qty: null). Remaining: 2
-[DEBUG] Processing intent: CATEGORY (Qty: 9). Remaining: 1
-Bot (Text): تم إضافة 1x تورتيلا زنجر حار (حار) إلى سلتك
-Bot (Text): بالنسبة لـ 9 لفائف، يرجى اختيار ما تود إضافته.
-Bot (Button): اختر خياراً
-Buttons: [تورتيلا زنجر حار (Len: 16)], [تورتيلا زنجر عادي (Len: 17)], [المزيد (Len: 6)]
+--- [User: test_user_payment_ar] Message: "عادي" ---
+Bot (Text): تم إضافة 2x برجر دجاج (بدون حار) إلى سلتك
+Bot (Text): *ملخص الطلب*
+────────────────
+*📦 البرجر*
+  1. برجر دجاج (بدون حار)
+  2 x 9.5 = 19 SAR
 
---- [User: test_user_arabic_nlp_fix] Message: "حار" ---
-Bot (Text): عذراً، لم أفهم ذلك. الرجاء استخدام الأزرار أو الكتابة بشكل طبيعي (مثال: '2 برجر', '3 قهوة').
+────────────────
+*المجموع: 19 SAR*
+
+تم إكمال طلبك.
+Bot (Button): هل ترغب في إضافة المزيد؟
+Buttons: [إضافة المزيد (Len: 12)], [إنهاء الطلب (Len: 11)]
+
+--- [User: test_user_payment_ar] Message: "إنهاء الطلب" ---
+Bot (Text): *ملخص الطلب*
+────────────────
+*📦 البرجر*
+  1. برجر دجاج (بدون حار)
+  2 x 9.5 = 19 SAR
+
+────────────────
+*المجموع: 19 SAR*
+Bot (Button): اختر طريقة الدفع:
+Buttons: [نقدي (Len: 4)], [دفع أونلاين (Len: 11)]
+
+--- [User: test_user_payment_ar] Message: "pay_cash" ---
+Bot (Text): تم تأكيد الطلب
+*ملخص الطلب*
+────────────────
+*📦 البرجر*
+  1. برجر دجاج (بدون حار)
+  2 x 9.5 = 19 SAR
+
+────────────────
+*المجموع: 19 SAR*
+طريقة الدفع: الدفع نقداً عند الاستلام
+
+شكراً لطلبك
+Bot (Button): هل تود طلب طلبية جديدة؟
+Buttons: [طلب جديد (Len: 8)]

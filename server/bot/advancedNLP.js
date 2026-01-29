@@ -109,17 +109,17 @@ const TYPO_CORRECTIONS = {
 	'adn': 'and', 'nd': 'and', 'amp': 'and',
 
 	// ========== META COMMAND VARIATIONS ==========
-	'complete': 'complete', 'comeplte': 'complete', 'compelte': 'complete',
-	'complet': 'complete', 'compleet': 'complete', 'complt': 'complete',
-	'cometple': 'complete', 'complette': 'complete', 'completly': 'complete',
+	'complete': 'finish_order', 'comeplte': 'finish_order', 'compelte': 'finish_order',
+	'complet': 'finish_order', 'compleet': 'finish_order', 'complt': 'finish_order',
+	'cometple': 'finish_order', 'complette': 'finish_order', 'completly': 'finish_order',
 	'entire': 'entire', 'eniter': 'entire', 'entir': 'entire', 'entier': 'entire',
 	'entirely': 'entire', 'enetir': 'entire',
-	'finish': 'finish', 'finis': 'finish', 'finishh': 'finish', 'finsh': 'finish',
-	'finese': 'finish', 'finishe': 'finish',
-	'cancel': 'cancel', 'cancl': 'cancel', 'cancell': 'cancel', 'cancle': 'cancel',
-	'canel': 'cancel', 'cancal': 'cancel', 'canc': 'cancel',
+	'finish': 'finish_order', 'finis': 'finish_order', 'finishh': 'finish_order', 'finsh': 'finish_order',
+	'finese': 'finish_order', 'finishe': 'finish_order',
+	'cancel': 'cancel_order', 'cancl': 'cancel_order', 'cancell': 'cancel_order', 'cancle': 'cancel_order',
+	'canel': 'cancel_order', 'cancal': 'cancel_order', 'canc': 'cancel_order',
 	'order': 'order', 'ordr': 'order', 'ordere': 'order', 'odr': 'order',
-	'done': 'done', 'don': 'done', 'doen': 'done', 'dun': 'done',
+	'done': 'finish_order', 'don': 'finish_order', 'doen': 'finish_order', 'dun': 'finish_order',
 
 	// ========== ACTION VARIATIONS ==========
 	'remove': 'remove', 'delete': 'remove', 'del': 'remove', 'subtract': 'remove',
@@ -150,9 +150,10 @@ const TYPO_CORRECTIONS_AR = {
 	'طبيعي': 'regular', 'نورمال': 'regular', 'بدون حار': 'regular', 'عاديه': 'regular',
 
 	// ========== META COMMANDS (ARABIC) ==========
-	'انها': 'انهاء', 'الغ': 'الغاء',
+	'انها': 'finish_order', 'الغ': 'cancel_order',
 	'الحسا': 'الحساب', 'الفاتوره': 'الفاتورة',
-	'خلصنا': 'انهاء',
+	'خلصنا': 'finish_order', 'إلغاء الطلب': 'cancel_order', 'إنهاء الطلب': 'finish_order',
+	'انهاء': 'finish_order', 'إنهاء': 'finish_order', 'الغاء': 'cancel_order', 'إلغاء': 'cancel_order',
 
 	// ========== ACTION ARABIC ==========
 	'حذف': 'remove', 'ازالة': 'remove', 'إزالة': 'remove', 'كنسل': 'remove',
