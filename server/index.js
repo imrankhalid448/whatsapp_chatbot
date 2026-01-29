@@ -106,10 +106,38 @@ app.post('/webhook', async (req, res) => {
             }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
 
           } else {
-            throw new Error("No API Key found");
+            // 2. TRY FREE VOSK (OFFLINE)
+            console.log("No API Key. Trying Vosk (Free/Offline)...");
+            const { transcribeAudio } = require('./speechToText');
+
+            // Need to download audio even for Vosk
+            const mediaResponse = await axios.get(
+              `https://graph.facebook.com/v18.0/${message.audio.id}`,
+              { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}` } }
+            );
+            const audioData = await axios.get(mediaResponse.data.url, {
+              headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}` },
+              responseType: 'arraybuffer'
+            });
+
+            const voskText = await transcribeAudio(audioData.data);
+
+            if (voskText && voskText.trim().length > 0) {
+              msgBody = voskText;
+              console.log("Vosk Transcription:", msgBody);
+              // Feedback
+              const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+              await axios.post(feedbackUrl, {
+                messaging_product: 'whatsapp',
+                to: from,
+                text: { body: `🎤 You said (Vosk): "${msgBody}"` }
+              }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
+            } else {
+              throw new Error("Vosk failed or returned empty.");
+            }
           }
         } catch (error) {
-          console.log("Transcription failed (or no key):", error.message);
+          console.log("Transcription failed:", error.message);
           // FALLBACK TO SIMULATION IF NO KEY / ERROR
           const userState = botEngine.getSession(from);
           let mockText = "2 Burgers";
