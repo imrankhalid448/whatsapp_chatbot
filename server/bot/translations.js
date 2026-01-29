@@ -1,8 +1,8 @@
 // Node.js compatible translations data for backend bot
 module.exports = {
 	en: {
-		welcome: "Welcome to JOANA Fast Food\n\nBranches:\n\n",
-		choose_option: "\n\nPlease choose an option:",
+		welcome: "Welcome to JOANA Fast Food\nBranches:\n",
+		choose_option: "\nPlease choose an option:",
 		order_text: "Order via Text",
 		order_voice: "Order via Voice",
 		choose_category: "Please choose a category:",
@@ -71,8 +71,8 @@ module.exports = {
 		order_completed: "Your order has been completed."
 	},
 	ar: {
-		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\n\nالفروع:\n\n",
-		choose_option: "\n\nالرجاء اختيار خيار:",
+		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\nالفروع:\n",
+		choose_option: "\nالرجاء اختيار خيار:",
 		order_text: "الطلب نصياً",
 		order_voice: "الطلب صوتياً",
 		choose_category: "تفضل قائمة الطعام:",

@@ -1,68 +1,27 @@
-Starting Payment refinement Simulation...
+Starting Arabic Welcome Simulation...
 
---- [User: test_user_payment_refinement] Message: "hi" ---
-Bot (Button): Welcome to JOANA Fast Food
-
-Branches:
-
-1. Al Malqa District
+--- [User: test_user_arabic_welcome] Message: "أهلاً" ---
+Bot (Button): مرحبا بكم في مطعم جوانا للوجبات السريعة
+الفروع:
+1. حي الملقا
    503100799
 
-2. Al Malqa District
+2. حي الملقا
    560051207
 
-3. Al Shifa District
+3. حي الشفا
    559852700
 
-4. Al Shifa District
+4. حي الشفا
    507300126
 
-5. Al Qadisiya District
+5. حي القادسية
    502004815
 
-6. Al Hamra Dist
+6. حي الحمراء
    500110612
 
-7. Ashbilan Dist
+7. حي اشبيليا
    590511988
-
-Please choose an option:
-Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
-
---- [User: test_user_payment_refinement] Message: "2 coffee" ---
-[DEBUG] Processing intent: ITEM (Qty: 2). Remaining: 0
-Bot (Text): Added 2x Coffee to your cart
-Bot (Text): *Order Summary*
-────────────────
-*📦 Drinks*
-  1. Coffee
-  2 x 3 = 6 SAR
-
-────────────────
-*Total: 6 SAR*
-
-Your order has been completed.
-Bot (Button): Would you like to add more items?
-Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
-
---- [User: test_user_payment_refinement] Message: "finish order" ---
-Bot (Text): *Order Summary*
-────────────────
-*📦 Drinks*
-  1. Coffee
-  2 x 3 = 6 SAR
-
-────────────────
-*Total: 6 SAR*
-Bot (Button): Choose payment method:
-Buttons: [Cash (Len: 4)], [Online Payment (Len: 14)], [Cancel Order (Len: 12)]
-
---- [User: test_user_payment_refinement] Message: "cancel_order" ---
-Bot (Button): Manage Order Options:
-Buttons: [Cancel Complete Order (Len: 21)], [Cancel Specific Item (Len: 20)], [Go Back to Menu (Len: 15)]
-
---- [User: test_user_payment_refinement] Message: "cancel_all" ---
-Bot (Text): Your order has been canceled successfully.
-You are welcome to browse the menu or place a new order at any time.
-Bot (Button): Would you like to place another order?
-Buttons: [New Order (Len: 9)]
+الرجاء اختيار خيار:
+Buttons: [الطلب نصياً (Len: 11)], [الطلب صوتياً (Len: 12)]

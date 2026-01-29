@@ -221,7 +221,7 @@ function processMessage(userId, text) {
     // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
         state.step = 'CATEGORY_SELECTION';
-        const welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${b.name}\n   ${b.phone}`).join('\n\n') + t.choose_option;
+        const welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${currentLang === 'ar' ? (b.nameAr || b.name) : b.name}\n   ${b.phone}`).join('\n\n') + t.choose_option;
         return [{
             type: 'button',
             body: welcomeMsg,
