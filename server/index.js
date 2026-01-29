@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+console.log("Starting WhatsApp Bot Server...");
 
 app.use(bodyParser.json());
 
