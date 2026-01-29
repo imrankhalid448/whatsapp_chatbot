@@ -17,15 +17,20 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_piza_menu';
+const TEST_USER = 'test_user_plural_fix';
 
-console.log("Starting '4 Piza' Menu Prompt Simulation...");
+console.log("Starting Singular/Plural Category Fix Simulation...");
 
 // 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. User orders unavailable item directly
+// 2. User orders "wraps" (previously rejected as unknown "wrap")
 // EXPECTED:
-// - "Sorry, piza is not on our menu."
-// - "Please choose a category" + Menu Buttons
-simulate(TEST_USER, "4 piza");
+// - Prompt for Wraps category "Please select which wrap..."
+// - NOT "Sorry, wrap is not on our menu"
+simulate(TEST_USER, "44 wraps and 33 snacks");
+
+// 3. User says "sandwich" (Singular)
+// EXPECTED:
+// - Prompt for Sandwiches category (Mapped to 'sandwiches')
+simulate(TEST_USER, "1 sandwich");

@@ -4,10 +4,10 @@ const menu = require('./menu');
 // COMPREHENSIVE TYPO CORRECTION DICTIONARY
 // ============================================
 const TYPO_CORRECTIONS = {
-	'burger': 'burger', 'burgers': 'burger', 'brgr': 'burger', 'brger': 'burger',
+	'burger': 'burgers', 'burgers': 'burgers', 'brgr': 'burgers', 'brger': 'burgers',
 	'beef': 'beef', 'chicken': 'chicken', 'zinger': 'zinger', 'zingerr': 'zinger',
 	'coffee': 'coffee', 'water': 'water', 'watr': 'water', 'sicy': 'spicy', 'spicy': 'spicy',
-	'sandwich': 'sandwich', 'wraps': 'wrap', 'wrap': 'wrap', 'pepsi': 'pepsi',
+	'sandwich': 'sandwiches', 'sandwiches': 'sandwiches', 'wraps': 'wraps', 'wrap': 'wraps', 'pepsi': 'pepsi',
 	'regular': 'regular', 'normal': 'regular', 'non-spicy': 'non-spicy', 'nonspicy': 'non-spicy',
 	'and': 'and', 'with': 'and', 'remove': 'remove', 'delete': 'remove',
 	'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5'

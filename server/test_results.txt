@@ -1,6 +1,6 @@
-Starting '4 Piza' Menu Prompt Simulation...
+Starting Singular/Plural Category Fix Simulation...
 
---- [User: test_user_piza_menu] Message: "hi" ---
+--- [User: test_user_plural_fix] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,9 +29,14 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_piza_menu] Message: "4 piza" ---
-[DEBUG] Processing intent: UNKNOWN (Qty: 4). Remaining: 0
-Bot (Text): Sorry, "piza" is not on our menu.
-Bot (Text): Please choose a category:
-Bot (Button): Here is our menu
-Buttons: [Burgers & Meals (Len: 15)], [Sandwiches & Wraps (Len: 18)], [Snacks & Sides (Len: 14)]
+--- [User: test_user_plural_fix] Message: "44 wraps and 33 snacks" ---
+[DEBUG] Processing intent: CATEGORY (Qty: 44). Remaining: 1
+Bot (Text): For your 44 wraps, please select what you would like to add.
+Bot (Button): Select an option
+Buttons: [Spicy Tortilla Zinge (Len: 20)], [Regular Tortilla Zin (Len: 20)], [More (Len: 4)]
+
+--- [User: test_user_plural_fix] Message: "1 sandwich" ---
+[DEBUG] Processing intent: CATEGORY (Qty: 1). Remaining: 1
+Bot (Text): Thank you for ordering 1 Sandwiches. Please tell us which type you would like.
+Bot (Button): Select an option
+Buttons: [Kibdah Sandwich (Len: 15)], [Egg Sandwich (Len: 12)], [More (Len: 4)]
