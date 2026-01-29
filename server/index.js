@@ -58,13 +58,25 @@ app.post('/webhook', async (req, res) => {
       } else if (message.type === 'audio') {
         // Voice Message Handling
         // Note: Real transcription requires OpenAI/Groq API key.
-        // For now, we simulate success or provide feedback.
-        // If we are in the "ITEM_SPICY" step, we can try to guess/mock.
+        // SIMULATION LOGIC:
+        // We check the user's current state to provide the most logical "Voice Input"
+        // so the demo flow works smoothly without looping.
         console.log("Audio message received. ID:", message.audio.id);
 
-        // Mock Transcription for user feedback (as requested)
-        // In production, insert: const text = await transcribe(message.audio.id);
-        const mockText = "2 Burgers"; // Default mock to demonstrate NLP (better than "Spicy" which fails at menu)
+        const userState = botEngine.getSession(from);
+        let mockText = "2 Burgers"; // Default
+
+        if (userState.step === 'ITEM_SPICY') {
+          mockText = "Spicy";
+        } else if (userState.step === 'ITEM_QTY' || userState.step === 'ITEM_QTY_MANUAL') {
+          mockText = "2";
+        } else if (userState.step === 'ITEM_REMOVE_QTY') {
+          mockText = "1";
+        } else if (userState.step === 'PAYMENT') {
+          mockText = "Cash";
+        } else if (userState.step === 'CANCEL_MENU') {
+          mockText = "Cancel All";
+        }
 
         // Reply with feedback
         const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
