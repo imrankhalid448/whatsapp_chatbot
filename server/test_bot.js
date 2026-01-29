@@ -17,28 +17,15 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_intent_preservation';
+const TEST_USER = 'test_user_piza_menu';
 
-console.log("Starting Intent Preservation Verification...");
+console.log("Starting '4 Piza' Menu Prompt Simulation...");
 
 // 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. Complex command: Category -> Category -> Unknown
-// "5 drinks" (Should pause for selection)
-// "23 wraps" (Should be preserved in pending)
-// "9 pizza" (Should be preserved in pending, then rejected)
-simulate(TEST_USER, "5 drinks 23 wraps and 9 pizza");
-
-// 3. User selects "Water" in response to "Which drink?"
+// 2. User orders unavailable item directly
 // EXPECTED:
-// - Added 5x Water
-// - [RESUME PENDING]: Processing "23 Wraps" -> Prompt "Which wrap?"
-// - [RESUME PENDING]: Processing "9 Pizza" -> Error "Sorry, pizza not on menu" (after wrap selection? No, wrap pauses too).
-simulate(TEST_USER, "Water");
-
-// 4. If prompt is for Wraps, select "Regular Tortilla Zinger"
-// EXPECTED:
-// - Added 23x Regular Tortilla Zinger
-// - [RESUME PENDING]: Processing "9 Pizza" -> Error "Sorry, pizza not on menu"
-simulate(TEST_USER, "item_7"); 
+// - "Sorry, piza is not on our menu."
+// - "Please choose a category" + Menu Buttons
+simulate(TEST_USER, "4 piza");

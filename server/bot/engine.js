@@ -127,6 +127,24 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
 
     if (nextIntent.type === 'UNKNOWN') {
         messages.push(currentLang === 'ar' ? `عذراً، "${nextIntent.data}" غير موجود في القائمة.` : `Sorry, "${nextIntent.data}" is not on our menu.`);
+
+        // If this is the last intent and nothing was added, show the menu
+        if (remaining.length === 0 && state.cart.length === 0) {
+            messages.push(t.choose_category);
+            messages.push({
+                type: 'button',
+                body: t.here_is_menu,
+                buttons: [
+                    { id: 'cat_burgers_meals', title: t.burgers_meals },
+                    { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                    { id: 'cat_snacks_sides', title: t.snacks_sides }
+                ]
+            });
+            state.step = 'CATEGORY_SELECTION';
+            // Clear items/context just in case
+            state.currentItem = null;
+        }
+
         return processSequentially(remaining, state.cart, currentLang, state, messages);
     }
 
