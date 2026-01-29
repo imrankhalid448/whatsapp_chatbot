@@ -59,51 +59,55 @@ app.post('/webhook', async (req, res) => {
       }
 
       // Use backend bot engine to process message
-      const reply = botEngine.processMessage(from, msgBody);
+      const replies = botEngine.processMessage(from, msgBody);
 
-      try {
-        const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-        let payload;
-        if (reply && typeof reply === 'object' && reply.type === 'button') {
-          // WhatsApp interactive button message
-          payload = {
-            messaging_product: 'whatsapp',
-            to: from,
-            type: 'interactive',
-            interactive: {
-              type: 'button',
-              body: { text: reply.body },
-              action: {
-                buttons: reply.buttons.map((btn, idx) => ({
-                  type: 'reply',
-                  reply: {
-                    id: btn.id || `btn_${idx + 1}`,
-                    title: btn.title
-                  }
-                }))
+      for (const reply of replies) {
+        try {
+          const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+          let payload;
+          if (reply && typeof reply === 'object' && reply.type === 'button') {
+            // WhatsApp interactive button message
+            payload = {
+              messaging_product: 'whatsapp',
+              to: from,
+              type: 'interactive',
+              interactive: {
+                type: 'button',
+                body: { text: reply.body },
+                action: {
+                  buttons: reply.buttons.map((btn, idx) => ({
+                    type: 'reply',
+                    reply: {
+                      id: btn.id || `btn_${idx + 1}`,
+                      title: btn.title
+                    }
+                  }))
+                }
+              }
+            };
+          } else {
+            // Plain text fallback
+            payload = {
+              messaging_product: 'whatsapp',
+              to: from,
+              text: { body: reply }
+            };
+          }
+          await axios.post(
+            url,
+            payload,
+            {
+              headers: {
+                'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
+                'Content-Type': 'application/json'
               }
             }
-          };
-        } else {
-          // Plain text fallback
-          payload = {
-            messaging_product: 'whatsapp',
-            to: from,
-            text: { body: reply }
-          };
+          );
+          // Small delay for natural flow
+          await new Promise(resolve => setTimeout(resolve, 800));
+        } catch (error) {
+          console.error('Error sending WhatsApp reply:', error.response ? error.response.data : error.message);
         }
-        await axios.post(
-          url,
-          payload,
-          {
-            headers: {
-              'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-      } catch (error) {
-        console.error('Error sending WhatsApp reply:', error.message);
       }
     }
     res.sendStatus(200);

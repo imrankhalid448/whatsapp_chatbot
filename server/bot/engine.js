@@ -30,147 +30,179 @@ function resetSession(userId) {
     sessions[userId] = JSON.parse(JSON.stringify(INITIAL_STATE));
 }
 
-function processMessage(userId, text) {
-    const state = getSession(userId);
-    let currentLang = state.language;
-
-    // 1. Language Detection & Initialization
-    if (!currentLang) {
-        const isArabic = /[\u0600-\u06FF]/.test(text);
-        currentLang = isArabic ? 'ar' : 'en';
-        state.language = currentLang;
-
-        if (state.step === 'INIT') {
-            const t = translations[currentLang];
-            state.step = 'CATEGORY_SELECTION';
-            return {
-                type: 'button',
-                body: t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${b.name}\n   ${b.phone}`).join('\n\n') + t.choose_option,
-                buttons: [
-                    { id: 'order_text', title: t.order_text },
-                    { id: 'order_voice', title: t.order_voice }
-                ]
+function getOrderSummaryText(cart, currentLang, t) {
+    const grouped = {};
+    cart.forEach(item => {
+        const catId = item.catId || 'other';
+        if (!grouped[catId]) {
+            const category = menu.categories.find(c => c.id === catId);
+            grouped[catId] = {
+                title: category ? (currentLang === 'ar' ? category.title.ar : category.title.en) : (currentLang === 'ar' ? 'أصناف أخرى' : 'Other Items'),
+                items: {}
             };
         }
+        const key = item.id + (item.preference ? `_${item.preference}` : '');
+        if (!grouped[catId].items[key]) grouped[catId].items[key] = { ...item, qty: 0 };
+        grouped[catId].items[key].qty += 1;
+    });
+
+    let total = 0;
+    let receiptText = `${t.order_summary}\n────────────────\n`;
+    let globalIndex = 1;
+
+    Object.keys(grouped).forEach(catId => {
+        const group = grouped[catId];
+        receiptText += `*📦 ${group.title}*\n`;
+        Object.values(group.items).forEach((item) => {
+            const lineTotal = item.price * item.qty;
+            total += lineTotal;
+            const prefLabel = item.preference === 'spicy' ? t.spicy : (item.preference === 'non-spicy' ? t.non_spicy : '');
+            const prefStr = item.preference ? ` (${prefLabel})` : '';
+            const name = currentLang === 'ar' ? item.name.ar : item.name.en;
+            receiptText += `  ${globalIndex++}. ${name}${prefStr}\n  ${item.qty} x ${item.price} = ${lineTotal} SAR\n`;
+        });
+        receiptText += '\n';
+    });
+    receiptText += `────────────────\n*${t.total}: ${total} SAR*`;
+    return receiptText;
+}
+
+function processSequentially(intents, currentCart, currentLang, state, messages = []) {
+    const t = translations[currentLang || 'en'];
+    if (intents.length === 0) {
+        state.pendingIntents = [];
+        state.currentIntent = null;
+        // Mirroring frontend showOrderSummary behavior
+        if (currentCart.length > 0) {
+            const summary = getOrderSummaryText(currentCart, currentLang, t);
+            messages.push(summary + `\n\n${t.order_completed}`);
+            messages.push({
+                type: 'button',
+                body: t.add_more_prompt,
+                buttons: [
+                    { id: 'add_more', title: t.add_more },
+                    { id: 'finish_order', title: t.finish_order }
+                ]
+            });
+            state.step = 'SUMMARY_MENU'; // Mirroring frontend state
+        }
+        return messages;
+    }
+
+    const nextIntent = intents[0];
+    const remaining = intents.slice(1);
+
+    if (nextIntent.type === 'CATEGORY') {
+        const categoryId = nextIntent.data.id;
+        const items = menu.items[categoryId] || [];
+        const allItems = items.map(item => ({ ...item, catId: categoryId }));
+        const catTitle = currentLang === 'ar' ? nextIntent.data.title.ar : nextIntent.data.title.en;
+
+        state.step = 'ITEMS_LIST';
+        state.currentCategory = categoryId;
+        state.itemOffset = 0;
+        state.allCategoryItems = allItems;
+        state.pendingIntents = remaining;
+        state.currentIntent = nextIntent;
+
+        const hasQty = !!nextIntent.qty;
+        const qty = nextIntent.qty || 1;
+
+        let prompt = hasQty ? (categoryId === 'wraps' ? t.nlp_qty_wraps.replace('{qty}', qty) : t.nlp_qty_category.replace('{name}', catTitle).replace('{qty}', qty))
+            : (categoryId === 'wraps' ? t.nlp_browse_wraps : t.nlp_browse_category.replace('{name}', catTitle));
+
+        messages.push(prompt);
+        const itemsToShow = allItems.slice(0, 2);
+        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
+        messages.push({ type: 'button', body: t.select_option, buttons });
+        return messages;
+    }
+
+    if (nextIntent.type === 'ITEM') {
+        const item = nextIntent.data;
+        const qty = nextIntent.qty || 1;
+        const action = nextIntent.action || 'ADD';
+        const preference = nextIntent.preference;
+        const needsSpicy = item.catId === 'burgers';
+        const itemName = currentLang === 'ar' ? item.name.ar : item.name.en;
+
+        if (action === 'REMOVE') {
+            let removedCount = 0;
+            for (let j = state.cart.length - 1; j >= 0; j--) {
+                const cartItem = state.cart[j];
+                if (cartItem.id === item.id && (!preference || cartItem.preference === preference)) {
+                    state.cart.splice(j, 1);
+                    removedCount++;
+                    if (removedCount === qty) break;
+                }
+            }
+            if (removedCount > 0) {
+                messages.push(`${currentLang === 'ar' ? 'تم حذف' : 'Removed'} ${removedCount}x ${itemName}`);
+            }
+            return processSequentially(remaining, state.cart, currentLang, state, messages);
+        }
+
+        if (!needsSpicy || preference) {
+            const itemWithPref = (preference && needsSpicy) ? { ...item, preference } : item;
+            for (let i = 0; i < qty; i++) state.cart.push(itemWithPref);
+            messages.push(`${t.added_to_cart} ${qty}x ${itemName}${preference ? ` (${preference === 'spicy' ? t.spicy : t.non_spicy})` : ''} ${t.to_your_cart}`);
+            return processSequentially(remaining, state.cart, currentLang, state, messages);
+        } else {
+            state.step = 'ITEM_SPICY';
+            state.currentItem = { ...item, qty };
+            state.pendingIntents = remaining;
+            state.currentIntent = nextIntent;
+            messages.push({
+                type: 'button',
+                body: `${t.how_would_you_like} ${itemName}?`,
+                buttons: [
+                    { id: 'spicy_yes', title: t.spicy },
+                    { id: 'spicy_no', title: t.non_spicy }
+                ]
+            });
+            return messages;
+        }
+    }
+    return messages;
+}
+
+function processMessage(userId, text) {
+    const state = getSession(userId);
+    let normalizedInput = text;
+    const easternDigits = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+    easternDigits.forEach((regex, i) => normalizedInput = normalizedInput.replace(regex, i));
+
+    let currentLang = state.language;
+    if (!currentLang) {
+        currentLang = /[\u0600-\u06FF]/.test(text) ? 'ar' : 'en';
+        state.language = currentLang;
     }
 
     const t = translations[currentLang];
-    const cleanText = text.trim();
+    const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
+    const cleanText = standardizedInput.trim();
 
-    // ============================================
-    // 1. BUTTON & COMMAND HANDLING (PRIORITY)
-    // ============================================
+    // 1. INIT Logic (Prioritized to handle first message)
+    if (state.step === 'INIT') {
+        state.step = 'CATEGORY_SELECTION';
+        const welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${b.name}\n   ${b.phone}`).join('\n\n') + t.choose_option;
+        return [{
+            type: 'button',
+            body: welcomeMsg,
+            buttons: [
+                { id: 'order_text', title: t.order_text },
+                { id: 'order_voice', title: t.order_voice }
+            ]
+        }];
+    }
 
+    // 2. Button Handling (Strict IDs)
     if (cleanText === 'order_text' || cleanText === 'order_voice') {
         state.step = 'CATEGORY_SELECTION';
-        return {
-            type: 'button',
-            body: t.choose_category + '\n' + t.here_is_menu,
-            buttons: [
-                { id: 'cat_burgers_meals', title: t.burgers_meals },
-                { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
-                { id: 'cat_snacks_sides', title: t.snacks_sides }
-            ]
-        };
-    }
-
-    const normalizedText = cleanText.toLowerCase();
-    if (normalizedText.startsWith('cat_')) {
-        let categoryIds = [];
-        let title = '';
-        if (normalizedText === 'cat_burgers_meals') { categoryIds = ['burgers', 'meals']; title = t.burgers_meals; }
-        else if (normalizedText === 'cat_sandwiches_wraps') { categoryIds = ['sandwiches', 'wraps']; title = t.sandwiches_wraps; }
-        else if (normalizedText === 'cat_snacks_sides') { categoryIds = ['sides', 'drinks', 'juices']; title = t.snacks_sides; }
-
-        if (categoryIds.length > 0) {
-            let allItems = [];
-            categoryIds.forEach(catId => { (menu.items[catId] || []).forEach(item => allItems.push({ ...item, catId })); });
-            state.step = 'ITEMS_LIST';
-            state.itemOffset = 0;
-            state.allCategoryItems = allItems;
-            return showItemsList(state, currentLang, t, title);
-        }
-    }
-
-    if (cleanText === 'more_items') {
-        state.itemOffset += 3;
-        return showItemsList(state, currentLang, t);
-    }
-
-    if (cleanText.startsWith('item_')) {
-        const itemId = cleanText.replace('item_', '');
-        const selectedItem = state.allCategoryItems.find(item => item.id === itemId);
-        if (selectedItem) {
-            state.currentItem = selectedItem;
-            state.step = 'AWAIT_QTY';
-            return {
-                type: 'button',
-                body: `${t.how_many} ${selectedItem.name[currentLang]}?`,
-                buttons: [
-                    { id: 'qty_1', title: '1' },
-                    { id: 'qty_2', title: '2' },
-                    { id: 'more_qty', title: t.more }
-                ]
-            };
-        }
-    }
-
-    if (cleanText.startsWith('qty_')) {
-        if (cleanText === 'more_qty') {
-            state.step = 'AWAIT_QTY_MANUAL';
-            return t.type_qty_manual;
-        }
-        const qty = parseInt(cleanText.replace('qty_', ''));
-        if (!isNaN(qty)) {
-            return addItemsToCart(state, state.currentItem, qty, currentLang, t);
-        }
-    }
-
-    if (state.step === 'AWAIT_QTY_MANUAL') {
-        const qty = parseInt(cleanText);
-        if (!isNaN(qty) && qty > 0) {
-            return addItemsToCart(state, state.currentItem, qty, currentLang, t);
-        }
-    }
-
-    if (cleanText === 'add_more') {
-        state.step = 'CATEGORY_SELECTION';
-        return {
-            type: 'button',
-            body: t.choose_category,
-            buttons: [
-                { id: 'cat_burgers_meals', title: t.burgers_meals },
-                { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
-                { id: 'cat_snacks_sides', title: t.snacks_sides }
-            ]
-        };
-    }
-
-    if (cleanText === 'finish_order') {
-        return finalizeOrder(state, currentLang, t, userId);
-    }
-
-    // ============================================
-    // 2. NATURAL LANGUAGE PROCESSING (FALLBACK)
-    // ============================================
-
-    const nlpIntents = advancedNLP(cleanText, currentLang);
-    if (nlpIntents.length > 0) {
-        return processSequentialIntents(state, nlpIntents, currentLang, t);
-    }
-
-    const explicitIntent = detectIntent(cleanText, currentLang);
-    if (explicitIntent) {
-        if (explicitIntent.intent === 'CANCEL_ORDER') {
-            resetSession(userId);
-            return t.cancel_success;
-        }
-        if (explicitIntent.intent === 'FINISH_ORDER') {
-            return finalizeOrder(state, currentLang, t, userId);
-        }
-        if (explicitIntent.intent === 'BROWSE_ALL_CATEGORIES') {
-            state.step = 'CATEGORY_SELECTION';
-            return {
+        return [
+            t.choose_category,
+            {
                 type: 'button',
                 body: t.here_is_menu,
                 buttons: [
@@ -178,125 +210,111 @@ function processMessage(userId, text) {
                     { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
                     { id: 'cat_snacks_sides', title: t.snacks_sides }
                 ]
-            };
-        }
-        if (explicitIntent.intent === 'BROWSE_CATEGORY') {
-            const catId = explicitIntent.categoryId;
-            let categoryIds = [catId];
-            if (catId === 'burgers' || catId === 'meals') categoryIds = ['burgers', 'meals'];
-            else if (catId === 'sandwiches' || catId === 'wraps') categoryIds = ['sandwiches', 'wraps'];
-            else if (['sides', 'drinks', 'juices'].includes(catId)) categoryIds = ['sides', 'drinks', 'juices'];
-
-            let allItems = [];
-            categoryIds.forEach(id => { (menu.items[id] || []).forEach(item => allItems.push({ ...item, catId: id })); });
-            state.step = 'ITEMS_LIST';
-            state.itemOffset = 0;
-            state.allCategoryItems = allItems;
-            return showItemsList(state, currentLang, t);
-        }
+            }
+        ];
     }
 
-    return t.didnt_understand + ' ' + t.use_buttons;
-}
+    if (cleanText === 'cat_burgers_meals' || cleanText === 'cat_sandwiches_wraps' || cleanText === 'cat_snacks_sides') {
+        let categoryIds = cleanText === 'cat_burgers_meals' ? ['burgers', 'meals'] : cleanText === 'cat_sandwiches_wraps' ? ['sandwiches', 'wraps'] : ['sides', 'drinks', 'juices'];
+        let allItems = [];
+        categoryIds.forEach(id => { (menu.items[id] || []).forEach(item => allItems.push({ ...item, catId: id })); });
+        state.step = 'ITEMS_LIST';
+        state.itemOffset = 0;
+        state.allCategoryItems = allItems;
+        const itemsToShow = allItems.slice(0, 2);
+        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
+        return [{ type: 'button', body: t.select_option, buttons }];
+    }
 
-function processSequentialIntents(state, intents, currentLang, t) {
-    let messages = [];
-    intents.forEach(intent => {
-        if (intent.type === 'ITEM') {
-            const item = intent.data;
-            const qty = intent.qty || 1;
-            const action = intent.action || 'ADD';
-            const preference = intent.preference;
+    if (cleanText === 'more_items') {
+        state.itemOffset += 2;
+        const itemsToShow = state.allCategoryItems.slice(state.itemOffset, state.itemOffset + 2);
+        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        if (state.allCategoryItems.length > state.itemOffset + 2) buttons.push({ id: 'more_items', title: t.more });
+        else buttons.push({ id: 'add_more', title: t.add_more });
+        return [{ type: 'button', body: t.select_option, buttons }];
+    }
 
-            if (action === 'REMOVE') {
-                let removedCount = 0;
-                for (let j = state.cart.length - 1; j >= 0; j--) {
-                    const cartItem = state.cart[j];
-                    if (cartItem.id === item.id && (!preference || cartItem.preference === preference)) {
-                        state.cart.splice(j, 1);
-                        removedCount++;
-                        if (removedCount === qty) break;
-                    }
-                }
-                if (removedCount > 0) {
-                    messages.push(`${currentLang === 'ar' ? 'تم حذف' : 'Removed'} ${removedCount}x ${item.name[currentLang]}`);
+    if (cleanText.startsWith('item_')) {
+        const itemId = cleanText.replace('item_', '');
+        const selectedItem = state.allCategoryItems.find(i => i.id === itemId);
+        if (selectedItem) {
+            state.currentItem = selectedItem;
+            // Does it have a known qty from intents?
+            if (state.currentIntent?.qty) {
+                const qty = state.currentIntent.qty;
+                if (selectedItem.catId === 'burgers') {
+                    state.step = 'ITEM_SPICY';
+                    state.currentItem.qty = qty;
+                    return [{ type: 'button', body: `${t.how_would_you_like} ${currentLang === 'ar' ? selectedItem.name.ar : selectedItem.name.en}?`, buttons: [{ id: 'spicy_yes', title: t.spicy }, { id: 'spicy_no', title: t.non_spicy }] }];
+                } else {
+                    for (let i = 0; i < qty; i++) state.cart.push(selectedItem);
+                    const msg = `${t.added_to_cart} ${qty}x ${currentLang === 'ar' ? selectedItem.name.ar : selectedItem.name.en} ${t.to_your_cart}`;
+                    return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
                 }
             } else {
-                for (let i = 0; i < qty; i++) {
-                    state.cart.push({ ...item, preference });
-                }
-                messages.push(`${t.added_to_cart} ${qty}x ${item.name[currentLang]} ${t.to_your_cart}`);
+                state.step = 'ITEM_QTY';
+                return [{ type: 'button', body: `${t.how_many} ${currentLang === 'ar' ? selectedItem.name.ar : selectedItem.name.en}?`, buttons: [{ id: 'qty_1', title: '1' }, { id: 'qty_2', title: '2' }, { id: 'qty_3', title: '3' }, { id: 'qty_more', title: t.more }] }];
             }
         }
-    });
-
-    if (messages.length > 0) {
-        let response = messages.join('\n') + '\n\n' + getShortCartSummary(state, currentLang, t);
-        return {
-            type: 'button',
-            body: response + '\n' + t.add_more_prompt,
-            buttons: [
-                { id: 'add_more', title: t.add_more },
-                { id: 'finish_order', title: t.finish_order }
-            ]
-        };
     }
-    return t.didnt_understand;
-}
 
-function addItemsToCart(state, item, qty, currentLang, t) {
-    for (let i = 0; i < qty; i++) state.cart.push({ ...item });
-    state.step = 'ITEMS_LIST';
-    let summary = `${t.added_to_cart} ${qty}x ${item.name[currentLang]} ${t.to_your_cart}\n\n`;
-    summary += getShortCartSummary(state, currentLang, t);
-    return {
-        type: 'button',
-        body: summary + '\n' + t.add_more_prompt,
-        buttons: [
-            { id: 'add_more', title: t.add_more },
-            { id: 'finish_order', title: t.finish_order }
-        ]
-    };
-}
+    // 3. State-based Logic (Handles both Buttons and Text)
+    if (state.step === 'ITEM_QTY' || state.step === 'ITEM_QTY_MANUAL') {
+        const qty = parseInt(cleanText.replace('qty_', ''));
+        if (cleanText === 'qty_more') { state.step = 'ITEM_QTY_MANUAL'; return [t.type_qty_manual]; }
+        if (!isNaN(qty) && qty > 0) {
+            if (state.currentItem.catId === 'burgers') {
+                state.step = 'ITEM_SPICY';
+                state.currentItem.qty = qty;
+                return [{ type: 'button', body: `${t.how_would_you_like} ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en}?`, buttons: [{ id: 'spicy_yes', title: t.spicy }, { id: 'spicy_no', title: t.non_spicy }] }];
+            } else {
+                for (let i = 0; i < qty; i++) state.cart.push(state.currentItem);
+                const msg = `${t.added_to_cart} ${qty}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} ${t.to_your_cart}`;
+                state.step = 'ITEMS_LIST';
+                return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
+            }
+        }
+    }
 
-function showItemsList(state, currentLang, t, title = '') {
-    const items = state.allCategoryItems;
-    const offset = state.itemOffset;
-    const displayItems = items.slice(offset, offset + 3);
-    const buttons = displayItems.map(item => ({ id: `item_${item.id}`, title: item.name[currentLang] }));
-    if (items.length > offset + 3) buttons.push({ id: 'more_items', title: t.more });
-    else buttons.push({ id: 'add_more', title: t.add_more });
+    if (state.step === 'ITEM_SPICY') {
+        if (cleanText === 'spicy_yes' || cleanText === 'spicy_no') {
+            const preference = cleanText === 'spicy_yes' ? 'spicy' : 'non-spicy';
+            const itemWithPref = { ...state.currentItem, preference };
+            const qty = state.currentItem.qty || 1;
+            for (let i = 0; i < qty; i++) state.cart.push(itemWithPref);
+            const msg = `${t.added_to_cart} ${qty}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} (${preference === 'spicy' ? t.spicy : t.non_spicy}) ${t.to_your_cart}`;
+            state.step = 'ITEMS_LIST';
+            return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
+        }
+    }
 
-    return {
-        type: 'button',
-        body: (title ? `${t.here_are} ${title}:\n` : '') + t.select_option,
-        buttons
-    };
-}
+    if (cleanText === 'add_more') {
+        state.step = 'CATEGORY_SELECTION';
+        return [t.choose_category, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
+    }
 
-function getShortCartSummary(state, currentLang, t) {
-    const grouped = {};
-    state.cart.forEach(item => {
-        const key = item.id + (item.preference ? `_${item.preference}` : '');
-        if (!grouped[key]) grouped[key] = { ...item, qty: 0 };
-        grouped[key].qty += 1;
-    });
-    let summary = `*${t.order_summary}*\n`;
-    let total = 0;
-    Object.values(grouped).forEach(item => {
-        const lineTotal = item.price * item.qty;
-        total += lineTotal;
-        summary += `• ${item.name[currentLang]} x${item.qty} = ${lineTotal} SAR\n`;
-    });
-    summary += `*${t.total}: ${total} SAR*`;
-    return summary;
-}
+    if (cleanText === 'finish_order') {
+        if (state.cart.length === 0) return [t.cart_empty];
+        const summary = getOrderSummaryText(state.cart, currentLang, t);
+        resetSession(userId);
+        return [summary, t.order_completed];
+    }
 
-function finalizeOrder(state, currentLang, t, userId) {
-    if (state.cart.length === 0) return t.cart_empty;
-    const summary = getShortCartSummary(state, currentLang, t);
-    resetSession(userId);
-    return summary + '\n\n' + t.order_completed;
+    // 4. NLP & Intent Fallback
+    const nlpIntents = advancedNLP(standardizedInput, currentLang);
+    if (nlpIntents.length > 0) return processSequentially(nlpIntents, state.cart, currentLang, state);
+
+    const explicitIntent = detectIntent(standardizedInput, currentLang);
+    if (explicitIntent) {
+        if (explicitIntent.intent === 'CANCEL_ORDER') { resetSession(userId); return [t.cancel_success]; }
+        if (explicitIntent.intent === 'FINISH_ORDER') { if (state.cart.length === 0) return [t.cart_empty]; const summary = getOrderSummaryText(state.cart, currentLang, t); resetSession(userId); return [summary, t.order_completed]; }
+        if (explicitIntent.intent === 'BROWSE_ALL_CATEGORIES') { state.step = 'CATEGORY_SELECTION'; return [t.here_is_menu, { type: 'button', body: t.select_option, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }]; }
+        if (explicitIntent.intent === 'BROWSE_CATEGORY') { return processSequentially([{ type: 'CATEGORY', data: { id: explicitIntent.categoryId, title: menu.categories.find(c => c.id === explicitIntent.categoryId).title } }], state.cart, currentLang, state); }
+    }
+
+    return [t.didnt_understand + ' ' + t.use_buttons];
 }
 
 module.exports = {

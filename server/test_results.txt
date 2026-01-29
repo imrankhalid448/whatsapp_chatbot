@@ -1,6 +1,6 @@
-Starting Bot Simulation...
+Starting Refined Bot Simulation (Sequential Logic)...
 
---- [User: test_user_1] Message: "hi" ---
+--- [User: test_user_2] Message: "menu please" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,64 +29,101 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (ID: order_text)], [Order via Voice (ID: order_voice)]
 
---- [User: test_user_1] Message: "order_text" ---
-Bot (Button): Please choose a category:
-Here is our menu
-Buttons: [Burgers & Meals (ID: cat_burgers_meals)], [Sandwiches & Wraps (ID: cat_sandwiches_wraps)], [Snacks & Sides (ID: cat_snacks_sides)]
+--- [User: test_user_2] Message: "cat_burgers_meals" ---
+Bot (Button): Select an option
+Buttons: [Chicken Burger (ID: item_1)], [Beef Burger (ID: item_2)], [More (ID: more_items)]
 
---- [User: test_user_1] Message: "cat_burgers_meals" ---
-Bot (Button): Here are our Burgers & Meals:
-Select an option
-Buttons: [Chicken Burger (ID: item_1)], [Beef Burger (ID: item_2)], [Regular Zinger Burger (ID: item_3)], [More (ID: more_items)]
-
---- [User: test_user_1] Message: "item_1" ---
+--- [User: test_user_2] Message: "item_1" ---
 Bot (Button): How many Chicken Burger?
-Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [More (ID: more_qty)]
+Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [3 (ID: qty_3)], [More (ID: qty_more)]
 
---- [User: test_user_1] Message: "qty_2" ---
-Bot (Button): Added 2x Chicken Burger to your cart
+--- [User: test_user_2] Message: "2" ---
+Bot (Button): How would you like your Chicken Burger?
+Buttons: [Spicy (ID: spicy_yes)], [Non-Spicy (ID: spicy_no)]
 
-**Order Summary**
-• Chicken Burger x2 = 19 SAR
+--- [User: test_user_2] Message: "spicy_yes" ---
+Bot (Text): Added 2x Chicken Burger (Spicy) to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Burgers*
+  1. Chicken Burger (Spicy)
+  2 x 9.5 = 19 SAR
+
+────────────────
 *Total: 19 SAR*
-Would you like to add more items?
-Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
-
---- [User: test_user_1] Message: "add 3 beef burgers" ---
-Bot (Button): Added 3x Beef Burger to your cart
-
-**Order Summary**
-• Chicken Burger x2 = 19 SAR
-• Beef Burger x3 = 28.5 SAR
-*Total: 47.5 SAR*
-Would you like to add more items?
-Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
-
---- [User: test_user_1] Message: "and 2 Zingerr" ---
-Bot (Button): Added 2x Regular Zinger Burger to your cart
-
-**Order Summary**
-• Chicken Burger x2 = 19 SAR
-• Beef Burger x3 = 28.5 SAR
-• Regular Zinger Burger x2 = 27 SAR
-*Total: 74.5 SAR*
-Would you like to add more items?
-Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
-
---- [User: test_user_1] Message: "show me the menu" ---
-Bot (Button): Here is our menu
-Buttons: [Burgers & Meals (ID: cat_burgers_meals)], [Sandwiches & Wraps (ID: cat_sandwiches_wraps)], [Snacks & Sides (ID: cat_snacks_sides)]
-
---- [User: test_user_1] Message: "cat_snacks_sides" ---
-Bot (Button): Here are our Snacks & Sides:
-Select an option
-Buttons: [Popcorn (ID: item_44)], [Sweet Potato (ID: item_17)], [Sweet Corn (ID: item_18)], [More (ID: more_items)]
-
---- [User: test_user_1] Message: "finish_order" ---
-Bot (Text): **Order Summary**
-• Chicken Burger x2 = 19 SAR
-• Beef Burger x3 = 28.5 SAR
-• Regular Zinger Burger x2 = 27 SAR
-*Total: 74.5 SAR*
 
 Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_2] Message: "Add 1 beef burger and 3 water" ---
+Bot (Button): How would you like your Beef Burger?
+Buttons: [Spicy (ID: spicy_yes)], [Non-Spicy (ID: spicy_no)]
+
+--- [User: test_user_2] Message: "spicy_no" ---
+Bot (Text): Added 1x Beef Burger (Non-Spicy) to your cart
+Bot (Text): Added 3x Water to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Burgers*
+  1. Chicken Burger (Spicy)
+  2 x 9.5 = 19 SAR
+  2. Beef Burger (Non-Spicy)
+  1 x 9.5 = 9.5 SAR
+
+*📦 Drinks*
+  3. Water
+  3 x 1.5 = 4.5 SAR
+
+────────────────
+*Total: 33 SAR*
+
+Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_2] Message: "and 2 Zingerrs" ---
+Bot (Button): How would you like your Regular Zinger Burger?
+Buttons: [Spicy (ID: spicy_yes)], [Non-Spicy (ID: spicy_no)]
+
+--- [User: test_user_2] Message: "spicy_yes" ---
+Bot (Text): Added 2x Regular Zinger Burger (Spicy) to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Burgers*
+  1. Chicken Burger (Spicy)
+  2 x 9.5 = 19 SAR
+  2. Beef Burger (Non-Spicy)
+  1 x 9.5 = 9.5 SAR
+  3. Regular Zinger Burger (Spicy)
+  2 x 13.5 = 27 SAR
+
+*📦 Drinks*
+  4. Water
+  3 x 1.5 = 4.5 SAR
+
+────────────────
+*Total: 60 SAR*
+
+Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
+
+--- [User: test_user_2] Message: "finish_order" ---
+Bot (Text): *Order Summary*
+────────────────
+*📦 Burgers*
+  1. Chicken Burger (Spicy)
+  2 x 9.5 = 19 SAR
+  2. Beef Burger (Non-Spicy)
+  1 x 9.5 = 9.5 SAR
+  3. Regular Zinger Burger (Spicy)
+  2 x 13.5 = 27 SAR
+
+*📦 Drinks*
+  4. Water
+  3 x 1.5 = 4.5 SAR
+
+────────────────
+*Total: 60 SAR*
+Bot (Text): Your order has been completed.
