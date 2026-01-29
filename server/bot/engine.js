@@ -250,9 +250,12 @@ function processMessage(userId, text) {
 
     // Step 3: Menu/category selection and navigation
     if (state.step === 'CATEGORY_SELECTION') {
-        // Accept both button text and typed text
+        // Accept both button text and button id
         const lower = cleanText.toLowerCase();
-        if (lower === t.order_text.toLowerCase() || lower === t.order_voice.toLowerCase()) {
+        if (
+            lower === t.order_text.toLowerCase() || lower === t.order_voice.toLowerCase() ||
+            lower === 'order_text' || lower === 'order_voice'
+        ) {
             // Show main categories as buttons
             state.step = 'AWAIT_CATEGORY';
             return {
