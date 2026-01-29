@@ -17,28 +17,21 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_drinks_fix';
+const TEST_USER = 'test_user_mixed_qty';
 
-console.log("Starting '8 Drinks' Fix Simulation...");
+console.log("Starting '8 Coffee 4 Drinks' Fix Simulation...");
 
 // 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. Select Burgers
+// 2. Select Burgers & Meals (just to get started)
 simulate(TEST_USER, "cat_burgers_meals");
 
-// 3. Select Chicken Burger
-simulate(TEST_USER, "item_1");
+// 3. User types complex mixed command
+// EXPECTED:
+// - Added 8x Coffee
+// - Thank you for ordering 4 Drinks... (NOT 1)
+simulate(TEST_USER, "8 coffee 4 drinks");
 
-// 4. Quantity 4
-simulate(TEST_USER, "4");
-
-// 5. Preferences
-simulate(TEST_USER, "2 spicy and 2 non spicy");
-
-// --- Order Summary Shown, currentItem should be cleared ---
-
-// 6. User says "8 drinks" (The bug trigger)
-// Should NOT say "How would you like your Chicken Burger?"
-// Should verify "drinks" is detected as category and logic flows to simple browsing/listing.
-simulate(TEST_USER, "8 drinks");
+// 4. Verify the drinks flow follows up
+simulate(TEST_USER, "3 pepsi and 1 water");

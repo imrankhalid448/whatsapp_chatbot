@@ -120,6 +120,8 @@ const advancedNLP = (text, lang = 'en') => {
 			for (let len = 3; len >= 1; len--) {
 				if (start + len > tokens.length) continue;
 				const phrase = tokens.slice(start, start + len).join(' ');
+				const lastToken = tokens[start + len - 1];
+				const lastTokenIsNumber = textToNumber(lastToken) !== null;
 
 				// Bypass if phrase is just a preference keyword
 				if (PREFERENCE_KEYWORDS.includes(phrase)) continue;
@@ -127,6 +129,7 @@ const advancedNLP = (text, lang = 'en') => {
 				// Priority 1: Category Match
 				for (const entry of categoryIndex) {
 					for (const variation of entry.variations) {
+						if (lastTokenIsNumber && !variation.includes(lastToken)) continue;
 						if (variation === phrase || (phrase.length > 4 && variation.includes(phrase))) {
 							if (len > bestLen) {
 								best = entry.category;
@@ -143,6 +146,7 @@ const advancedNLP = (text, lang = 'en') => {
 				for (const entry of itemIndex) {
 					for (const variation of entry.variations) {
 						if (variation.length < 3) continue;
+						if (lastTokenIsNumber && !variation.includes(lastToken)) continue;
 						const dist = levenshtein(phrase, variation);
 						const threshold = variation.length > 5 ? 2 : 1;
 						if (phrase === variation || dist <= threshold) {

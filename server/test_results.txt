@@ -1,6 +1,6 @@
-Starting '8 Drinks' Fix Simulation...
+Starting '8 Coffee 4 Drinks' Fix Simulation...
 
---- [User: test_user_drinks_fix] Message: "hi" ---
+--- [User: test_user_mixed_qty] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,37 +29,32 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_drinks_fix] Message: "cat_burgers_meals" ---
+--- [User: test_user_mixed_qty] Message: "cat_burgers_meals" ---
 Bot (Button): Select an option
 Buttons: [Chicken Burger (Len: 14)], [Beef Burger (Len: 11)], [More (Len: 4)]
 
---- [User: test_user_drinks_fix] Message: "item_1" ---
-Bot (Button): How many Chicken Burger?
-Buttons: [1 (Len: 1)], [2 (Len: 1)], [More (Len: 4)]
+--- [User: test_user_mixed_qty] Message: "8 coffee 4 drinks" ---
+Bot (Text): Added 8x Coffee to your cart
+Bot (Text): Thank you for ordering 4 Drinks. Please tell us which type you would like.
+Bot (Button): Select an option
+Buttons: [Pepsi (Len: 5)], [Water (Len: 5)], [More (Len: 4)]
 
---- [User: test_user_drinks_fix] Message: "4" ---
-Bot (Button): How would you like your Chicken Burger?
-Buttons: [Spicy (Len: 5)], [Non-Spicy (Len: 9)]
-
---- [User: test_user_drinks_fix] Message: "2 spicy and 2 non spicy" ---
-Bot (Text): Added 2x Chicken Burger (Spicy) to your cart
-Bot (Text): Added 2x Chicken Burger (Non-Spicy) to your cart
+--- [User: test_user_mixed_qty] Message: "3 pepsi and 1 water" ---
+Bot (Text): Added 3x Pepsi to your cart
+Bot (Text): Added 1x Water to your cart
 Bot (Text): *Order Summary*
 ────────────────
-*📦 Burgers*
-  1. Chicken Burger (Spicy)
-  2 x 9.5 = 19 SAR
-  2. Chicken Burger (Non-Spicy)
-  2 x 9.5 = 19 SAR
+*📦 Drinks*
+  1. Pepsi
+  3 x 2.5 = 7.5 SAR
+  2. Water
+  1 x 1.5 = 1.5 SAR
+  3. Coffee
+  8 x 3 = 24 SAR
 
 ────────────────
-*Total: 38 SAR*
+*Total: 33 SAR*
 
 Your order has been completed.
 Bot (Button): Would you like to add more items?
 Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
-
---- [User: test_user_drinks_fix] Message: "8 drinks" ---
-Bot (Text): Thank you for ordering 8 Drinks. Please tell us which type you would like.
-Bot (Button): Select an option
-Buttons: [Pepsi (Len: 5)], [Water (Len: 5)], [More (Len: 4)]
