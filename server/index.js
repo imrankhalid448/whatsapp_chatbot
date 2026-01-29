@@ -54,8 +54,27 @@ app.post('/webhook', async (req, res) => {
       if (message.type === 'text') {
         msgBody = message.text.body;
       } else if (message.type === 'interactive' && message.interactive.button_reply) {
-        // Handle WhatsApp button click
-        msgBody = message.interactive.button_reply.id; // Use ID for exact logic, or .title
+        msgBody = message.interactive.button_reply.id;
+      } else if (message.type === 'audio') {
+        // Voice Message Handling
+        // Note: Real transcription requires OpenAI/Groq API key.
+        // For now, we simulate success or provide feedback.
+        // If we are in the "ITEM_SPICY" step, we can try to guess/mock.
+        console.log("Audio message received. ID:", message.audio.id);
+
+        // Mock Transcription for user feedback (as requested)
+        // In production, insert: const text = await transcribe(message.audio.id);
+        const mockText = "Spicy"; // Temporary mock for testing flow
+
+        // Reply with feedback
+        const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+        await axios.post(feedbackUrl, {
+          messaging_product: 'whatsapp',
+          to: from,
+          text: { body: `🎤 You said: "${mockText}" (Simulated Voice)` }
+        }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
+
+        msgBody = mockText;
       }
 
       // Use backend bot engine to process message
