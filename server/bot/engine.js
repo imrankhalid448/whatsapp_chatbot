@@ -255,7 +255,7 @@ function processMessage(userId, text) {
                 }
             } else {
                 state.step = 'ITEM_QTY';
-                return [{ type: 'button', body: `${t.how_many} ${currentLang === 'ar' ? selectedItem.name.ar : selectedItem.name.en}?`, buttons: [{ id: 'qty_1', title: '1' }, { id: 'qty_2', title: '2' }, { id: 'qty_3', title: '3' }, { id: 'qty_more', title: t.more }] }];
+                return [{ type: 'button', body: `${t.how_many} ${currentLang === 'ar' ? selectedItem.name.ar : selectedItem.name.en}?`, buttons: [{ id: 'qty_1', title: '1' }, { id: 'qty_2', title: '2' }, { id: 'qty_more', title: t.more }] }];
             }
         }
     }

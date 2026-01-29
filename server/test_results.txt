@@ -35,7 +35,7 @@ Buttons: [Chicken Burger (ID: item_1)], [Beef Burger (ID: item_2)], [More (ID: m
 
 --- [User: test_user_2] Message: "item_1" ---
 Bot (Button): How many Chicken Burger?
-Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [3 (ID: qty_3)], [More (ID: qty_more)]
+Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [More (ID: qty_more)]
 
 --- [User: test_user_2] Message: "2" ---
 Bot (Button): How would you like your Chicken Burger?
