@@ -32,10 +32,49 @@ app.get('/webhook', (req, res) => {
 });
 
 // Webhook to receive messages
+
+// Webhook to receive messages and auto-reply
 app.post('/webhook', async (req, res) => {
   const body = req.body;
   if (body.object) {
-    // Handle WhatsApp messages here
+    // Check for WhatsApp messages
+    if (
+      body.entry &&
+      Array.isArray(body.entry) &&
+      body.entry[0].changes &&
+      Array.isArray(body.entry[0].changes) &&
+      body.entry[0].changes[0].value &&
+      body.entry[0].changes[0].value.messages &&
+      Array.isArray(body.entry[0].changes[0].value.messages)
+    ) {
+      const message = body.entry[0].changes[0].value.messages[0];
+      const from = message.from; // WhatsApp user phone number
+      const msgBody = message.text && message.text.body ? message.text.body : '';
+
+      // Auto-reply logic (customize as needed)
+      const reply = `You said: ${msgBody}`;
+
+      // Send reply using WhatsApp API
+      try {
+        const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+        await axios.post(
+          url,
+          {
+            messaging_product: 'whatsapp',
+            to: from,
+            text: { body: reply }
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Error sending WhatsApp reply:', error.message);
+      }
+    }
     res.sendStatus(200);
   } else {
     res.sendStatus(404);
