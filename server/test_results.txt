@@ -1,6 +1,6 @@
-Starting Mixed Preference Simulation (User Scenario)...
+Starting Button Length Verification...
 
---- [User: test_user_3] Message: "hi" ---
+--- [User: test_user_wraps] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -27,50 +27,17 @@ Branches:
    590511988
 
 Please choose an option:
-Buttons: [Order via Text (ID: order_text)], [Order via Voice (ID: order_voice)]
+Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_3] Message: "cat_burgers_meals" ---
+--- [User: test_user_wraps] Message: "cat_sandwiches_wraps" ---
 Bot (Button): Select an option
-Buttons: [Chicken Burger (ID: item_1)], [Beef Burger (ID: item_2)], [More (ID: more_items)]
+Buttons: [Kibdah Sandwich (Len: 15)], [Egg Sandwich (Len: 12)], [More (Len: 4)]
 
---- [User: test_user_3] Message: "item_2" ---
-Bot (Button): How many Beef Burger?
-Buttons: [1 (ID: qty_1)], [2 (ID: qty_2)], [More (ID: qty_more)]
+--- [User: test_user_wraps] Message: "show me wraps" ---
+Bot (Text): Please select which wrap you would like to add.
+Bot (Button): Select an option
+Buttons: [Spicy Tortilla Zinge (Len: 20)], [Regular Tortilla Zin (Len: 20)], [More (Len: 4)]
 
---- [User: test_user_3] Message: "qty_more" ---
-Bot (Text): Type the quantity you want (e.g., 5, 10, 20...)
-
---- [User: test_user_3] Message: "8" ---
-Bot (Button): How would you like your Beef Burger?
-Buttons: [Spicy (ID: spicy_yes)], [Non-Spicy (ID: spicy_no)]
-
---- [User: test_user_3] Message: "4 sicy and 4 non spicy" ---
-Bot (Text): Added 4x Beef Burger (Spicy) to your cart
-Bot (Text): Added 4x Beef Burger (Non-Spicy) to your cart
-Bot (Text): *Order Summary*
-────────────────
-*📦 Burgers*
-  1. Beef Burger (Spicy)
-  4 x 9.5 = 38 SAR
-  2. Beef Burger (Non-Spicy)
-  4 x 9.5 = 38 SAR
-
-────────────────
-*Total: 76 SAR*
-
-Your order has been completed.
-Bot (Button): Would you like to add more items?
-Buttons: [Add More (ID: add_more)], [Finish Order (ID: finish_order)]
-
---- [User: test_user_3] Message: "finish_order" ---
-Bot (Text): *Order Summary*
-────────────────
-*📦 Burgers*
-  1. Beef Burger (Spicy)
-  4 x 9.5 = 38 SAR
-  2. Beef Burger (Non-Spicy)
-  4 x 9.5 = 38 SAR
-
-────────────────
-*Total: 76 SAR*
-Bot (Text): Your order has been completed.
+--- [User: test_user_wraps] Message: "more_items" ---
+Bot (Button): Select an option
+Buttons: [Tortilla Chicken Jum (Len: 20)], [Add More (Len: 8)]

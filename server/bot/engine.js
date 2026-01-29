@@ -113,7 +113,11 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
 
         messages.push(prompt);
         const itemsToShow = allItems.slice(0, 2);
-        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        const buttons = itemsToShow.map(item => ({
+            id: `item_${item.id}`,
+            title: (currentLang === 'ar' ? item.name.ar : item.name.en).substring(0, 20)
+        }));
+
         if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
         messages.push({ type: 'button', body: t.select_option, buttons });
         return messages;
@@ -224,7 +228,11 @@ function processMessage(userId, text) {
         state.itemOffset = 0;
         state.allCategoryItems = allItems;
         const itemsToShow = allItems.slice(0, 2);
-        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        const buttons = itemsToShow.map(item => ({
+            id: `item_${item.id}`,
+            title: (currentLang === 'ar' ? item.name.ar : item.name.en).substring(0, 20)
+        }));
+
         if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
         return [{ type: 'button', body: t.select_option, buttons }];
     }
@@ -232,7 +240,10 @@ function processMessage(userId, text) {
     if (cleanText === 'more_items') {
         state.itemOffset += 2;
         const itemsToShow = state.allCategoryItems.slice(state.itemOffset, state.itemOffset + 2);
-        const buttons = itemsToShow.map(item => ({ id: `item_${item.id}`, title: currentLang === 'ar' ? item.name.ar : item.name.en }));
+        const buttons = itemsToShow.map(item => ({
+            id: `item_${item.id}`,
+            title: (currentLang === 'ar' ? item.name.ar : item.name.en).substring(0, 20)
+        }));
         if (state.allCategoryItems.length > state.itemOffset + 2) buttons.push({ id: 'more_items', title: t.more });
         else buttons.push({ id: 'add_more', title: t.add_more });
         return [{ type: 'button', body: t.select_option, buttons }];
