@@ -8,6 +8,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+// Root route for health/status check
+app.get('/', (req, res) => {
+  res.status(200).send('Whatsapp Chatbot API is running.');
+});
+
 // Webhook verification
 app.get('/webhook', (req, res) => {
   const verify_token = process.env.VERIFY_TOKEN;
