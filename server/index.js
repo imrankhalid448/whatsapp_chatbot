@@ -56,37 +56,88 @@ app.post('/webhook', async (req, res) => {
       } else if (message.type === 'interactive' && message.interactive.button_reply) {
         msgBody = message.interactive.button_reply.id;
       } else if (message.type === 'audio') {
-        // Voice Message Handling
-        // Note: Real transcription requires OpenAI/Groq API key.
-        // SIMULATION LOGIC:
-        // We check the user's current state to provide the most logical "Voice Input"
-        // so the demo flow works smoothly without looping.
         console.log("Audio message received. ID:", message.audio.id);
 
-        const userState = botEngine.getSession(from);
-        let mockText = "2 Burgers"; // Default
+        // 1. TRY REAL TRANSCRIPTION
+        try {
+          const apiKey = process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY;
 
-        if (userState.step === 'ITEM_SPICY') {
-          mockText = "Spicy";
-        } else if (userState.step === 'ITEM_QTY' || userState.step === 'ITEM_QTY_MANUAL') {
-          mockText = "2";
-        } else if (userState.step === 'ITEM_REMOVE_QTY') {
-          mockText = "1";
-        } else if (userState.step === 'PAYMENT') {
-          mockText = "Cash";
-        } else if (userState.step === 'CANCEL_MENU') {
-          mockText = "Cancel All";
+          if (apiKey) {
+            // Fetch Media URL from WhatsApp
+            const mediaResponse = await axios.get(
+              `https://graph.facebook.com/v18.0/${message.audio.id}`,
+              { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}` } }
+            );
+
+            const mediaUrl = mediaResponse.data.url;
+
+            // Download Audio Binary
+            const audioData = await axios.get(mediaUrl, {
+              headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}` },
+              responseType: 'arraybuffer'
+            });
+
+            // Create FormData for Whisper API
+            const form = new FormData();
+            form.append('file', Buffer.from(audioData.data), { filename: 'audio.ogg', contentType: 'audio/ogg' });
+            form.append('model', 'whisper-1');
+            if (process.env.GROQ_API_KEY) form.append('model', 'whisper-large-v3'); // Groq model
+
+            const transcribeUrl = process.env.GROQ_API_KEY
+              ? 'https://api.groq.com/openai/v1/audio/transcriptions'
+              : 'https://api.openai.com/v1/audio/transcriptions';
+
+            const response = await axios.post(transcribeUrl, form, {
+              headers: {
+                ...form.getHeaders(),
+                'Authorization': `Bearer ${apiKey}`
+              }
+            });
+
+            msgBody = response.data.text;
+            console.log("Real Transcription:", msgBody);
+
+            // Feedback for Real Transcription
+            const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+            await axios.post(feedbackUrl, {
+              messaging_product: 'whatsapp',
+              to: from,
+              text: { body: `🎤 You said: "${msgBody}"` }
+            }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
+
+          } else {
+            throw new Error("No API Key found");
+          }
+        } catch (error) {
+          console.log("Transcription failed (or no key):", error.message);
+          // FALLBACK TO SIMULATION IF NO KEY / ERROR
+          const userState = botEngine.getSession(from);
+          let mockText = "2 Burgers";
+
+          if (userState.step === 'ITEM_SPICY') {
+            mockText = "Spicy";
+          } else if (userState.step === 'ITEM_QTY' || userState.step === 'ITEM_QTY_MANUAL') {
+            mockText = "2";
+          } else if (userState.step === 'ITEM_REMOVE_QTY') {
+            mockText = "1";
+          } else if (userState.step === 'ITEMS_LIST') {
+            mockText = "Beef Burger"; // Pick a valid item to advance flow
+          } else if (userState.step === 'PAYMENT') {
+            mockText = "Cash";
+          } else if (userState.step === 'CANCEL_MENU') {
+            mockText = "Cancel All";
+          }
+
+          // Reply with feedback (Simulated)
+          const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+          await axios.post(feedbackUrl, {
+            messaging_product: 'whatsapp',
+            to: from,
+            text: { body: `🎤 You said: "${mockText}" (Simulated - Add OPENAI_API_KEY for Real Voice)` }
+          }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
+
+          msgBody = mockText;
         }
-
-        // Reply with feedback
-        const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-        await axios.post(feedbackUrl, {
-          messaging_product: 'whatsapp',
-          to: from,
-          text: { body: `🎤 You said: "${mockText}" (Simulated Voice)` }
-        }, { headers: { 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' } });
-
-        msgBody = mockText;
       }
 
       // Use backend bot engine to process message
