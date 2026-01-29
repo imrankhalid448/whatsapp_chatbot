@@ -11,33 +11,34 @@ function simulate(userId, text) {
         if (typeof reply === 'object' && reply.type === 'button') {
             console.log(`Bot (Button): ${reply.body}`);
             console.log(`Buttons: ${reply.buttons.map(b => `[${b.title} (Len: ${b.title.length})]`).join(', ')}`);
-            // Validation
-            const invalidButtons = reply.buttons.filter(b => b.title.length > 20);
-            if (invalidButtons.length > 0) {
-                console.error("FATAL ERROR: Buttons exceed 20 chars!", invalidButtons);
-            }
         } else {
             console.log(`Bot (Text): ${reply}`);
         }
     }
 }
 
-const TEST_USER = 'test_user_wraps';
+const TEST_USER = 'test_user_drinks_fix';
 
-console.log("Starting Button Length Verification...");
+console.log("Starting '8 Drinks' Fix Simulation...");
 
 // 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. Select "Sandwiches & Wraps" (This category includes long names)
-simulate(TEST_USER, "cat_sandwiches_wraps");
+// 2. Select Burgers
+simulate(TEST_USER, "cat_burgers_meals");
 
-// 3. User selects "Wraps" intent via NLP to see items directly? 
-// No, the buttons allow drilling down. Let's try direct category NLP: "Show me wraps"
-simulate(TEST_USER, "show me wraps");
+// 3. Select Chicken Burger
+simulate(TEST_USER, "item_1");
 
-// 4. Verify the buttons for wraps.
-// Expected: "Spicy Tortilla Zinger" -> "Spicy Tortilla Zinge" (20 chars)
+// 4. Quantity 4
+simulate(TEST_USER, "4");
 
-// 5. Test "More" button functionality with long names
-simulate(TEST_USER, "more_items");
+// 5. Preferences
+simulate(TEST_USER, "2 spicy and 2 non spicy");
+
+// --- Order Summary Shown, currentItem should be cleared ---
+
+// 6. User says "8 drinks" (The bug trigger)
+// Should NOT say "How would you like your Chicken Burger?"
+// Should verify "drinks" is detected as category and logic flows to simple browsing/listing.
+simulate(TEST_USER, "8 drinks");

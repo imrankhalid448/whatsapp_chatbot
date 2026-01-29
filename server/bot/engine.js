@@ -74,6 +74,7 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
         state.currentIntent = null;
         // Mirroring frontend showOrderSummary behavior
         if (currentCart.length > 0) {
+            state.currentItem = null; // SAFETY: Clear context so next command doesn't attach to last item
             const summary = getOrderSummaryText(currentCart, currentLang, t);
             messages.push(summary + `\n\n${t.order_completed}`);
             messages.push({
@@ -305,6 +306,7 @@ function processMessage(userId, text) {
 
     if (cleanText === 'add_more') {
         state.step = 'CATEGORY_SELECTION';
+        state.currentItem = null; // Clear context
         return [t.choose_category, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
     }
 

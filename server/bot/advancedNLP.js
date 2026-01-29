@@ -72,11 +72,26 @@ const buildItemIndex = () => {
 	return index;
 };
 
+const buildCategoryIndex = () => {
+	const index = [];
+	menu.categories.forEach(cat => {
+		const vars = [
+			cat.id,
+			cat.title.en.toLowerCase(),
+			cat.title.ar,
+			...cat.title.en.toLowerCase().split(' ')
+		];
+		index.push({ category: cat, variations: Array.from(new Set(vars)) });
+	});
+	return index;
+};
+
 const advancedNLP = (text, lang = 'en') => {
 	try {
 		const corrected = applyTypoCorrection(text, lang);
 		const tokens = corrected.split(/\s+/).filter(t => t.length > 0);
 		const itemIndex = buildItemIndex();
+		const categoryIndex = buildCategoryIndex();
 		const intents = [];
 
 		let currentAction = 'ADD';
@@ -91,6 +106,7 @@ const advancedNLP = (text, lang = 'en') => {
 			const qty = textToNumber(token);
 			const start = (qty !== null) ? i + 1 : i;
 			let best = null;
+			let bestType = null;
 			let bestLen = 0;
 
 			// Check for preference token first
@@ -100,7 +116,7 @@ const advancedNLP = (text, lang = 'en') => {
 				preference = (pToken === 'regular' || pToken === 'normal' || pToken === 'mild') ? 'non-spicy' : pToken;
 			}
 
-			// Maximal match for items
+			// Maximal match for Items OR Categories
 			for (let len = 3; len >= 1; len--) {
 				if (start + len > tokens.length) continue;
 				const phrase = tokens.slice(start, start + len).join(' ');
@@ -108,14 +124,31 @@ const advancedNLP = (text, lang = 'en') => {
 				// Bypass if phrase is just a preference keyword
 				if (PREFERENCE_KEYWORDS.includes(phrase)) continue;
 
+				// Priority 1: Category Match
+				for (const entry of categoryIndex) {
+					for (const variation of entry.variations) {
+						if (variation === phrase || (phrase.length > 4 && variation.includes(phrase))) {
+							if (len > bestLen) {
+								best = entry.category;
+								bestType = 'CATEGORY';
+								bestLen = len;
+							}
+						}
+					}
+				}
+				// If a category is found, we can prioritize it.
+				// However, items might be longer and more specific.
+				// Let's allow items to potentially override if they are a better match (longer phrase).
+
 				for (const entry of itemIndex) {
 					for (const variation of entry.variations) {
 						if (variation.length < 3) continue;
 						const dist = levenshtein(phrase, variation);
 						const threshold = variation.length > 5 ? 2 : 1;
 						if (phrase === variation || dist <= threshold) {
-							if (len > bestLen) {
+							if (len > bestLen) { // Prefer item over category if same length? Usually yes.
 								best = entry.item;
+								bestType = 'ITEM';
 								bestLen = len;
 							}
 						}
@@ -125,8 +158,8 @@ const advancedNLP = (text, lang = 'en') => {
 
 			if (best || qty !== null || preference !== null) {
 				intents.push({
-					type: 'ITEM',
-					data: best,
+					type: bestType || 'ITEM', // If null, defaults to ITEM (context fallback)
+					data: best, // If null, will trigger context fallback in engine.js
 					qty: qty || 1,
 					preference: preference,
 					action: currentAction

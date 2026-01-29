@@ -1,6 +1,6 @@
-Starting Button Length Verification...
+Starting '8 Drinks' Fix Simulation...
 
---- [User: test_user_wraps] Message: "hi" ---
+--- [User: test_user_drinks_fix] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,15 +29,37 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_wraps] Message: "cat_sandwiches_wraps" ---
+--- [User: test_user_drinks_fix] Message: "cat_burgers_meals" ---
 Bot (Button): Select an option
-Buttons: [Kibdah Sandwich (Len: 15)], [Egg Sandwich (Len: 12)], [More (Len: 4)]
+Buttons: [Chicken Burger (Len: 14)], [Beef Burger (Len: 11)], [More (Len: 4)]
 
---- [User: test_user_wraps] Message: "show me wraps" ---
-Bot (Text): Please select which wrap you would like to add.
-Bot (Button): Select an option
-Buttons: [Spicy Tortilla Zinge (Len: 20)], [Regular Tortilla Zin (Len: 20)], [More (Len: 4)]
+--- [User: test_user_drinks_fix] Message: "item_1" ---
+Bot (Button): How many Chicken Burger?
+Buttons: [1 (Len: 1)], [2 (Len: 1)], [More (Len: 4)]
 
---- [User: test_user_wraps] Message: "more_items" ---
+--- [User: test_user_drinks_fix] Message: "4" ---
+Bot (Button): How would you like your Chicken Burger?
+Buttons: [Spicy (Len: 5)], [Non-Spicy (Len: 9)]
+
+--- [User: test_user_drinks_fix] Message: "2 spicy and 2 non spicy" ---
+Bot (Text): Added 2x Chicken Burger (Spicy) to your cart
+Bot (Text): Added 2x Chicken Burger (Non-Spicy) to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Burgers*
+  1. Chicken Burger (Spicy)
+  2 x 9.5 = 19 SAR
+  2. Chicken Burger (Non-Spicy)
+  2 x 9.5 = 19 SAR
+
+────────────────
+*Total: 38 SAR*
+
+Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
+
+--- [User: test_user_drinks_fix] Message: "8 drinks" ---
+Bot (Text): Thank you for ordering 8 Drinks. Please tell us which type you would like.
 Bot (Button): Select an option
-Buttons: [Tortilla Chicken Jum (Len: 20)], [Add More (Len: 8)]
+Buttons: [Pepsi (Len: 5)], [Water (Len: 5)], [More (Len: 4)]
