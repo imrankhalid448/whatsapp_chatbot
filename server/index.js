@@ -56,13 +56,38 @@ app.post('/webhook', async (req, res) => {
 
       try {
         const url = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-        await axios.post(
-          url,
-          {
+        let payload;
+        if (reply && typeof reply === 'object' && reply.type === 'button') {
+          // WhatsApp interactive button message
+          payload = {
+            messaging_product: 'whatsapp',
+            to: from,
+            type: 'interactive',
+            interactive: {
+              type: 'button',
+              body: { text: reply.body },
+              action: {
+                buttons: reply.buttons.map((btn, idx) => ({
+                  type: 'reply',
+                  reply: {
+                    id: btn.id || `btn_${idx+1}`,
+                    title: btn.title
+                  }
+                }))
+              }
+            }
+          };
+        } else {
+          // Plain text fallback
+          payload = {
             messaging_product: 'whatsapp',
             to: from,
             text: { body: reply }
-          },
+          };
+        }
+        await axios.post(
+          url,
+          payload,
           {
             headers: {
               'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,

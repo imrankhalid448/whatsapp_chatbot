@@ -238,11 +238,14 @@ function processMessage(userId, text) {
     // Step 2: Welcome/init and initial menu/category flow
     if (state.step === 'INIT') {
         state.step = 'CATEGORY_SELECTION';
-        // WhatsApp: show welcome, branches, and options as text
+        // WhatsApp: show welcome, branches, and options as text with buttons
         let welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${b.name}\n   ${b.phone}`).join('\n\n') + t.choose_option;
-        welcomeMsg += `\n- ${t.order_text}\n- ${t.order_voice}`;
+        const buttons = [
+            { id: 'order_text', title: t.order_text },
+            { id: 'order_voice', title: t.order_voice }
+        ];
         state._lastBotMsg = welcomeMsg;
-        return welcomeMsg;
+        return { type: 'button', body: welcomeMsg, buttons };
     }
 
     // Step 3: Menu/category selection and navigation
