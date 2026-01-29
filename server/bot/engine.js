@@ -50,10 +50,11 @@ function detectLanguageAndInitSession(userId, text) {
 }
 
 
+
 function processMessage(userId, text) {
-        // Store last message for repeat intent
-        state._lastBotMsg = state._lastBotMsg || '';
     const state = getSession(userId);
+    // Store last message for repeat intent
+    state._lastBotMsg = state._lastBotMsg || '';
 
     // Step 1: Language detection
     let currentLang = detectLanguageAndInitSession(userId, text);
