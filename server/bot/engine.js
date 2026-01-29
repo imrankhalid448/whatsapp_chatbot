@@ -451,7 +451,8 @@ function processMessage(userId, text) {
         state.step = 'CATEGORY_SELECTION';
         // Show summary and return to main menu or add more
         const summary = getOrderSummaryText(state.cart, currentLang, t);
-        return [msg, summary, { type: 'button', body: t.add_more_prompt, buttons: [{ id: 'add_more', title: t.add_more }, { id: 'finish_order', title: t.finish_order }] }];
+        const combinedMsg = `${msg}\n\n${summary}\n\n${t.add_more_prompt}`;
+        return [{ type: 'button', body: combinedMsg, buttons: [{ id: 'add_more', title: t.add_more }, { id: 'finish_order', title: t.finish_order }] }];
     }
 
     if (cleanText === 'finish_order') {
