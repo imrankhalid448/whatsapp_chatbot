@@ -17,20 +17,33 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_arabic_switch';
+const TEST_USER = 'test_user_cancel_flow_fixed';
 
-console.log("Starting Arabic Language Switch Simulation...");
+console.log("Starting Cancel Order Flow Simulation (Fixed IDs)...");
 
-// 1. Start in English
+// 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. Switch to Arabic with greeting
-// EXPECTED:
-// - Switch language to 'ar'
-// - Show Main Menu in Arabic
-simulate(TEST_USER, "أهلاً");
+// 2. Add some items
+simulate(TEST_USER, "3 coffee"); // ID 43
+simulate(TEST_USER, "2 beef burger non spicy"); // ID 2
 
-// 3. Order in Arabic
+// 3. Request Cancel
+simulate(TEST_USER, "cancel order");
+
+// 4. Select "Cancel Specific Item"
 // EXPECTED:
-// - Understand Arabic numbers and items
-simulate(TEST_USER, "١ برجر دجاج"); 
+// - List of items to remove: [Coffee (3)], [Beef Burger (2)]
+simulate(TEST_USER, "cancel_item");
+
+// 5. Select Coffee to remove (Correct ID: 43)
+// EXPECTED:
+// - "How many Coffee would you like to remove?"
+// - Buttons: [1], [2], [All]
+simulate(TEST_USER, "remove_item_group_43");
+
+// 6. Remove 1
+// EXPECTED:
+// - Removed 1x Coffee
+// - Order Summary shown
+simulate(TEST_USER, "qty_remove_1");

@@ -338,6 +338,119 @@ function processMessage(userId, text) {
         return [t.choose_category, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
     }
 
+    if (cleanText === 'cancel_go_back') {
+        state.step = 'CATEGORY_SELECTION';
+        return [t.choose_category, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
+    }
+
+    if (cleanText === 'cancel_all') {
+        resetSession(userId);
+        return [t.cancel_success, { type: 'button', body: t.new_order_prompt, buttons: [{ id: 'new_order', title: t.new_order }] }];
+    }
+
+    if (cleanText === 'new_order') {
+        state.step = 'CATEGORY_SELECTION';
+        return [t.choose_category, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
+    }
+
+    if (cleanText === 'cancel_item') {
+        if (state.cart.length === 0) return [t.cart_empty];
+
+        // Group items for removal menu (Mirroring frontend logic)
+        const groupedForRemoval = [];
+        state.cart.forEach(item => {
+            const key = item.id + (item.preference ? `_${item.preference}` : '');
+            const existing = groupedForRemoval.find(g => g.key === key);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                groupedForRemoval.push({ key, ...item, qty: 1 });
+            }
+        });
+
+        state.step = 'REMOVE_ITEM';
+        state.removeOffset = 0;
+        state.groupedRemovalItems = groupedForRemoval;
+
+        const itemsToShow = groupedForRemoval.slice(0, 2);
+        const buttons = itemsToShow.map(item => {
+            const name = currentLang === 'ar' ? item.name.ar : item.name.en;
+            const prefStr = item.preference ? ` (${item.preference === 'spicy' ? t.spicy : t.non_spicy})` : '';
+            return { id: `remove_item_group_${item.key}`, title: `${t.remove} ${name}${prefStr}`.substring(0, 20) };
+        });
+
+        if (groupedForRemoval.length > 2) buttons.push({ id: 'remove_more', title: t.more });
+        buttons.push({ id: 'cancel_go_back', title: t.go_back });
+
+        return [t.select_remove, { type: 'button', body: t.select_option, buttons }];
+    }
+
+    // Handle Removal Selections
+    if (state.step === 'REMOVE_ITEM' || cleanText.startsWith('remove_item_group_')) {
+        if (cleanText === 'remove_more') {
+            state.removeOffset = (state.removeOffset || 0) + 2;
+            const itemsToShow = state.groupedRemovalItems.slice(state.removeOffset, state.removeOffset + 2);
+            const buttons = itemsToShow.map(item => {
+                const name = currentLang === 'ar' ? item.name.ar : item.name.en;
+                const prefStr = item.preference ? ` (${item.preference === 'spicy' ? t.spicy : t.non_spicy})` : '';
+                return { id: `remove_item_group_${item.key}`, title: `${t.remove} ${name}${prefStr}`.substring(0, 20) };
+            });
+            if (state.groupedRemovalItems.length > state.removeOffset + 2) buttons.push({ id: 'remove_more', title: t.more });
+            else buttons.push({ id: 'cancel_go_back', title: t.go_back });
+            return [{ type: 'button', body: t.select_option, buttons }];
+        }
+
+        if (cleanText.startsWith('remove_item_group_')) {
+            const key = cleanText.replace('remove_item_group_', '');
+            const selectedGroup = state.groupedRemovalItems.find(g => g.key === key);
+
+            if (selectedGroup) {
+                state.step = 'ITEM_REMOVE_QTY';
+                state.currentItemToRemove = selectedGroup;
+
+                const buttons = [];
+                // WhatsApp max 3 buttons
+                if (selectedGroup.qty <= 3) {
+                    for (let i = 1; i <= selectedGroup.qty; i++) buttons.push({ id: `qty_remove_${i}`, title: `${i}` });
+                } else {
+                    buttons.push({ id: `qty_remove_1`, title: '1' });
+                    buttons.push({ id: `qty_remove_2`, title: '2' });
+                    buttons.push({ id: `qty_remove_all`, title: currentLang === 'ar' ? 'الكل' : 'All' });
+                }
+
+                const name = currentLang === 'ar' ? selectedGroup.name.ar : selectedGroup.name.en;
+                return [{ type: 'button', body: `${t.remove_qty_ask} ${name} (${selectedGroup.qty})`, buttons }];
+            }
+        }
+    }
+
+    if (state.step === 'ITEM_REMOVE_QTY' && cleanText.startsWith('qty_remove_')) {
+        let qtyToRemove = 0;
+        if (cleanText === 'qty_remove_all') {
+            qtyToRemove = state.currentItemToRemove.qty;
+        } else {
+            qtyToRemove = parseInt(cleanText.replace('qty_remove_', ''));
+        }
+
+        let removedCount = 0;
+        for (let j = state.cart.length - 1; j >= 0; j--) {
+            const item = state.cart[j];
+            const key = item.id + (item.preference ? `_${item.preference}` : '');
+            if (key === state.currentItemToRemove.key) {
+                state.cart.splice(j, 1);
+                removedCount++;
+                if (removedCount === qtyToRemove) break;
+            }
+        }
+
+        const name = currentLang === 'ar' ? state.currentItemToRemove.name.ar : state.currentItemToRemove.name.en;
+        const msg = `${t.removed} ${removedCount}x ${name}`;
+        state.step = 'CATEGORY_SELECTION';
+        // Show summary and return to main menu or add more
+        const summary = getOrderSummaryText(state.cart, currentLang, t);
+        return [msg, summary, { type: 'button', body: t.add_more_prompt, buttons: [{ id: 'add_more', title: t.add_more }, { id: 'finish_order', title: t.finish_order }] }];
+    }
+
     if (cleanText === 'finish_order') {
         if (state.cart.length === 0) return [t.cart_empty];
         const summary = getOrderSummaryText(state.cart, currentLang, t);
@@ -358,7 +471,18 @@ function processMessage(userId, text) {
 
     const explicitIntent = detectIntent(standardizedInput, currentLang);
     if (explicitIntent) {
-        if (explicitIntent.intent === 'CANCEL_ORDER') { resetSession(userId); return [t.cancel_success]; }
+        if (explicitIntent.intent === 'CANCEL_ORDER') {
+            state.step = 'CANCEL_MENU';
+            return [{
+                type: 'button',
+                body: t.cancel_menu,
+                buttons: [
+                    { id: 'cancel_all', title: t.cancel_all },
+                    { id: 'cancel_item', title: t.cancel_item },
+                    { id: 'cancel_go_back', title: t.go_back }
+                ]
+            }];
+        }
         if (explicitIntent.intent === 'FINISH_ORDER') { if (state.cart.length === 0) return [t.cart_empty]; const summary = getOrderSummaryText(state.cart, currentLang, t); resetSession(userId); return [summary, t.order_completed]; }
         if (explicitIntent.intent === 'BROWSE_ALL_CATEGORIES') { state.step = 'CATEGORY_SELECTION'; return [t.here_is_menu, { type: 'button', body: t.select_option, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }]; }
         if (explicitIntent.intent === 'BROWSE_CATEGORY') { return processSequentially([{ type: 'CATEGORY', data: { id: explicitIntent.categoryId, title: menu.categories.find(c => c.id === explicitIntent.categoryId).title } }], state.cart, currentLang, state); }

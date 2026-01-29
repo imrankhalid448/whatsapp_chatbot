@@ -1,6 +1,6 @@
-Starting Arabic Language Switch Simulation...
+Starting Cancel Order Flow Simulation (Fixed IDs)...
 
---- [User: test_user_arabic_switch] Message: "hi" ---
+--- [User: test_user_cancel_flow_fixed] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,12 +29,49 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_arabic_switch] Message: "أهلاً" ---
-Bot (Text): تفضل القائمة
-Bot (Button): اختر خياراً
-Buttons: [برجر و وجبات (Len: 12)], [سندويشات و لفائف (Len: 16)], [مقبلات و وجبات خفيفة (Len: 20)]
+--- [User: test_user_cancel_flow_fixed] Message: "3 coffee" ---
+[DEBUG] Processing intent: ITEM (Qty: 3). Remaining: 0
+Bot (Text): Added 3x Coffee to your cart
+Bot (Text): *Order Summary*
+────────────────
+*📦 Drinks*
+  1. Coffee
+  3 x 3 = 9 SAR
 
---- [User: test_user_arabic_switch] Message: "١ برجر دجاج" ---
-[DEBUG] Processing intent: ITEM (Qty: 1). Remaining: 0
-Bot (Button): كيف تفضل برجر دجاج?
-Buttons: [حار (Len: 3)], [بدون حار (Len: 8)]
+────────────────
+*Total: 9 SAR*
+
+Your order has been completed.
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
+
+--- [User: test_user_cancel_flow_fixed] Message: "2 beef burger non spicy" ---
+[DEBUG] Processing intent: ITEM (Qty: 2). Remaining: 1
+Bot (Button): How would you like your Beef Burger?
+Buttons: [Spicy (Len: 5)], [Non-Spicy (Len: 9)]
+
+--- [User: test_user_cancel_flow_fixed] Message: "cancel order" ---
+Bot (Button): Manage Order Options:
+Buttons: [Cancel Complete Order (Len: 21)], [Cancel Specific Item (Len: 20)], [Go Back to Menu (Len: 15)]
+
+--- [User: test_user_cancel_flow_fixed] Message: "cancel_item" ---
+Bot (Text): Select an item to remove:
+Bot (Button): Select an option
+Buttons: [Remove Coffee (Len: 13)], [Go Back to Menu (Len: 15)]
+
+--- [User: test_user_cancel_flow_fixed] Message: "remove_item_group_43" ---
+Bot (Button): How many would you like to remove? Coffee (3)
+Buttons: [1 (Len: 1)], [2 (Len: 1)], [3 (Len: 1)]
+
+--- [User: test_user_cancel_flow_fixed] Message: "qty_remove_1" ---
+Bot (Text): Removed 1x Coffee
+Bot (Text): *Order Summary*
+────────────────
+*📦 Drinks*
+  1. Coffee
+  2 x 3 = 6 SAR
+
+────────────────
+*Total: 6 SAR*
+Bot (Button): Would you like to add more items?
+Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
