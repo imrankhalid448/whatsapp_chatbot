@@ -1,9 +1,9 @@
-Starting Cancel Order Flow Simulation (Fixed IDs)...
+Starting Arabic NLP Parity Simulation...
 
---- [User: test_user_cancel_flow_fixed] Message: "hi" ---
-Bot (Button): Welcome to JOANA Fast Food
+--- [User: test_user_arabic_nlp_fix] Message: "أهلاً" ---
+Bot (Button): مرحبا بكم في مطعم جوانا للوجبات السريعة
 
-Branches:
+الفروع:
 
 1. Al Malqa District
    503100799
@@ -26,52 +26,22 @@ Branches:
 7. Ashbilan Dist
    590511988
 
-Please choose an option:
-Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
+الرجاء اختيار خيار:
+Buttons: [الطلب نصياً (Len: 11)], [الطلب صوتياً (Len: 12)]
 
---- [User: test_user_cancel_flow_fixed] Message: "3 coffee" ---
-[DEBUG] Processing intent: ITEM (Qty: 3). Remaining: 0
-Bot (Text): Added 3x Coffee to your cart
-Bot (Text): *Order Summary*
-────────────────
-*📦 Drinks*
-  1. Coffee
-  3 x 3 = 9 SAR
+--- [User: test_user_arabic_nlp_fix] Message: "9 برغر و9 لفائف و9 قهوة" ---
+[DEBUG] Processing intent: CATEGORY (Qty: 9). Remaining: 2
+Bot (Text): شكراً لطلبك 9 البرجر. يرجى اختيار النوع الذي تفضله.
+Bot (Button): اختر خياراً
+Buttons: [برجر دجاج (Len: 9)], [برجر لحم (Len: 8)], [المزيد (Len: 6)]
 
-────────────────
-*Total: 9 SAR*
+--- [User: test_user_arabic_nlp_fix] Message: "تورتيلا زنجر حار" ---
+[DEBUG] Processing intent: ITEM (Qty: null). Remaining: 2
+[DEBUG] Processing intent: CATEGORY (Qty: 9). Remaining: 1
+Bot (Text): تم إضافة 1x تورتيلا زنجر حار (حار) إلى سلتك
+Bot (Text): بالنسبة لـ 9 لفائف، يرجى اختيار ما تود إضافته.
+Bot (Button): اختر خياراً
+Buttons: [تورتيلا زنجر حار (Len: 16)], [تورتيلا زنجر عادي (Len: 17)], [المزيد (Len: 6)]
 
-Your order has been completed.
-Bot (Button): Would you like to add more items?
-Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
-
---- [User: test_user_cancel_flow_fixed] Message: "2 beef burger non spicy" ---
-[DEBUG] Processing intent: ITEM (Qty: 2). Remaining: 1
-Bot (Button): How would you like your Beef Burger?
-Buttons: [Spicy (Len: 5)], [Non-Spicy (Len: 9)]
-
---- [User: test_user_cancel_flow_fixed] Message: "cancel order" ---
-Bot (Button): Manage Order Options:
-Buttons: [Cancel Complete Order (Len: 21)], [Cancel Specific Item (Len: 20)], [Go Back to Menu (Len: 15)]
-
---- [User: test_user_cancel_flow_fixed] Message: "cancel_item" ---
-Bot (Text): Select an item to remove:
-Bot (Button): Select an option
-Buttons: [Remove Coffee (Len: 13)], [Go Back to Menu (Len: 15)]
-
---- [User: test_user_cancel_flow_fixed] Message: "remove_item_group_43" ---
-Bot (Button): How many would you like to remove? Coffee (3)
-Buttons: [1 (Len: 1)], [2 (Len: 1)], [3 (Len: 1)]
-
---- [User: test_user_cancel_flow_fixed] Message: "qty_remove_1" ---
-Bot (Text): Removed 1x Coffee
-Bot (Text): *Order Summary*
-────────────────
-*📦 Drinks*
-  1. Coffee
-  2 x 3 = 6 SAR
-
-────────────────
-*Total: 6 SAR*
-Bot (Button): Would you like to add more items?
-Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
+--- [User: test_user_arabic_nlp_fix] Message: "حار" ---
+Bot (Text): عذراً، لم أفهم ذلك. الرجاء استخدام الأزرار أو الكتابة بشكل طبيعي (مثال: '2 برجر', '3 قهوة').

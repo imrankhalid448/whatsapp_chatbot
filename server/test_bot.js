@@ -17,33 +17,26 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_cancel_flow_fixed';
+const TEST_USER = 'test_user_arabic_nlp_fix';
 
-console.log("Starting Cancel Order Flow Simulation (Fixed IDs)...");
+console.log("Starting Arabic NLP Parity Simulation...");
 
-// 1. Initial greeting
-simulate(TEST_USER, "hi");
+// 1. Initial greeting (Arabic)
+simulate(TEST_USER, "أهلاً");
 
-// 2. Add some items
-simulate(TEST_USER, "3 coffee"); // ID 43
-simulate(TEST_USER, "2 beef burger non spicy"); // ID 2
-
-// 3. Request Cancel
-simulate(TEST_USER, "cancel order");
-
-// 4. Select "Cancel Specific Item"
+// 2. Complex Arabic Order (The failing case)
 // EXPECTED:
-// - List of items to remove: [Coffee (3)], [Beef Burger (2)]
-simulate(TEST_USER, "cancel_item");
+// - 9x Burger (Beef Burger, prompts for spicy)
+// - 9x Wraps (Prompts for Selection)
+// - 9x Coffee (Added immediately)
+simulate(TEST_USER, "9 برغر و9 لفائف و9 قهوة");
 
-// 5. Select Coffee to remove (Correct ID: 43)
+// 3. Selection for Wraps
 // EXPECTED:
-// - "How many Coffee would you like to remove?"
-// - Buttons: [1], [2], [All]
-simulate(TEST_USER, "remove_item_group_43");
+// - Adds 9x Spicy Zinger Wraps (since qty 9 was carried over)
+simulate(TEST_USER, "تورتيلا زنجر حار");
 
-// 6. Remove 1
+// 4. Selection for Burger (if prompted)
 // EXPECTED:
-// - Removed 1x Coffee
-// - Order Summary shown
-simulate(TEST_USER, "qty_remove_1");
+// - Adds 9x Beef Burger (Spicy/Non-Spicy)
+simulate(TEST_USER, "حار"); 
