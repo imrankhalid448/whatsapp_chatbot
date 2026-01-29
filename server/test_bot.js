@@ -17,33 +17,26 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER_EN = 'test_user_payment_en';
-const TEST_USER_AR = 'test_user_payment_ar';
+const TEST_USER = 'test_user_payment_refinement';
 
-console.log("Starting Payment Flow Simulation...");
+console.log("Starting Payment refinement Simulation...");
 
-// Case 1: English - Online Payment
-simulate(TEST_USER_EN, "hi");
-simulate(TEST_USER_EN, "2 coffee");
-simulate(TEST_USER_EN, "finish_order"); // Should show payment options
+// 1. Initial greeting
+simulate(TEST_USER, "hi");
+simulate(TEST_USER, "2 coffee");
+
+// 2. Finish Order (NLP Intent)
 // EXPECTED:
 // - Order Summary
-// - Choose payment method: [Cash], [Online]
-simulate(TEST_USER_EN, "pay_online");
-// EXPECTED:
-// - Order Confirmed
-// - Payment Method: Online Payment
-// - Payment Link: https://...
+// - Choose payment method: [Cash], [Online Payment], [Cancel Order]
+simulate(TEST_USER, "finish order");
 
-// Case 2: Arabic - Cash Payment
-simulate(TEST_USER_AR, "أهلاً");
-simulate(TEST_USER_AR, "٢ برجر دجاج"); // 2 Chicken Burger
-simulate(TEST_USER_AR, "عادي"); // Non-spicy
-simulate(TEST_USER_AR, "إنهاء الطلب"); // finish_order (Arabic)
+// 3. Select "Cancel Order" from Payment Menu
 // EXPECTED:
-// - ملخص الطلب
-// - اختر طريقة الدفع: [نقدي], [دفع أونلاين]
-simulate(TEST_USER_AR, "pay_cash"); // Button ID is English 'pay_cash'
+// - Manage Order Options: [Cancel Complete Order], [Cancel Specific Item], [Go Back]
+simulate(TEST_USER, "cancel_order");
+
+// 4. Cancel All
 // EXPECTED:
-// - تم تأكيد الطلب
-// - طريقة الدفع: الدفع نقداً عند الاستلام
+// - Cancel success message
+simulate(TEST_USER, "cancel_all");

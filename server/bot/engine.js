@@ -216,7 +216,7 @@ function processMessage(userId, text) {
 
     const t = translations[currentLang];
     const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
-    const cleanText = standardizedInput.trim();
+    let cleanText = standardizedInput.trim();
 
     // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
@@ -458,7 +458,7 @@ function processMessage(userId, text) {
         if (state.cart.length === 0) return [t.cart_empty];
         const summary = getOrderSummaryText(state.cart, currentLang, t);
         state.step = 'PAYMENT';
-        return [summary, { type: 'button', body: t.choose_payment, buttons: [{ id: 'pay_cash', title: t.cash }, { id: 'pay_online', title: t.online }] }];
+        return [summary, { type: 'button', body: t.choose_payment, buttons: [{ id: 'pay_cash', title: t.cash }, { id: 'pay_online', title: t.online }, { id: 'cancel_order', title: t.cancel_order }] }];
     }
 
     if (state.step === 'PAYMENT' || cleanText === 'pay_cash' || cleanText === 'pay_online') {
@@ -482,6 +482,34 @@ function processMessage(userId, text) {
 
     // 4. NLP & Intent Fallback
     // 4. NLP & Intent Fallback
+    // 4. NLP & Intent Fallback
+    // Check for Meta Commands (Typo Corrected) - Bypasses intent detection for robustness
+    if (cleanText.includes('finish_order')) {
+        cleanText = 'finish_order';
+    } else if (cleanText.includes('cancel_order')) {
+        cleanText = 'cancel_order';
+        state.step = 'CANCEL_MENU';
+        return [{
+            type: 'button',
+            body: t.cancel_menu,
+            buttons: [
+                { id: 'cancel_all', title: t.cancel_all },
+                { id: 'cancel_item', title: t.cancel_item },
+                { id: 'cancel_go_back', title: t.go_back }
+            ]
+        }];
+    } else if (cleanText.includes('cancel_all')) {
+        cleanText = 'cancel_all';
+    }
+
+    // Check again after forcing
+    if (cleanText === 'finish_order') {
+        if (state.cart.length === 0) return [t.cart_empty];
+        const summary = getOrderSummaryText(state.cart, currentLang, t);
+        state.step = 'PAYMENT';
+        return [summary, { type: 'button', body: t.choose_payment, buttons: [{ id: 'pay_cash', title: t.cash }, { id: 'pay_online', title: t.online }, { id: 'cancel_order', title: t.cancel_order }] }];
+    }
+
     const nlpIntents = advancedNLP(standardizedInput, currentLang);
     if (nlpIntents.length > 0) {
         // CRITICAL FIX: Merge new intents with any pending intents from previous steps (e.g., "5 drinks" -> prompt -> "water" -> resume "23 wraps")
@@ -505,7 +533,10 @@ function processMessage(userId, text) {
                 ]
             }];
         }
-        if (explicitIntent.intent === 'FINISH_ORDER') { if (state.cart.length === 0) return [t.cart_empty]; const summary = getOrderSummaryText(state.cart, currentLang, t); resetSession(userId); return [summary, t.order_completed]; }
+        if (explicitIntent.intent === 'FINISH_ORDER') {
+            // Fallthrough to standard text handler for FINISH_ORDER to ensure consistent Payment Flow
+            cleanText = 'finish_order';
+        }
         if (explicitIntent.intent === 'BROWSE_ALL_CATEGORIES') { state.step = 'CATEGORY_SELECTION'; return [t.here_is_menu, { type: 'button', body: t.select_option, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }]; }
         if (explicitIntent.intent === 'BROWSE_CATEGORY') { return processSequentially([{ type: 'CATEGORY', data: { id: explicitIntent.categoryId, title: menu.categories.find(c => c.id === explicitIntent.categoryId).title } }], state.cart, currentLang, state); }
     }
