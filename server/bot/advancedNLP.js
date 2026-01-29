@@ -434,6 +434,8 @@ const advancedNLP = (text, lang = 'en') => {
 				}
 			}
 
+			const STOP_WORDS = ['me', 'you', 'it', 'us', 'him', 'her', 'them', 'please', 'like', 'want', 'order', 'to', 'for', 'a', 'an', 'the', 'this', 'that', 'here', 'there', 'is', 'am', 'are', 'can', 'could', 'would', 'will'];
+
 			if (bestMatch) {
 				let finalQty = isOrder ? qty : null;
 				const nextToken = tokens[i + (isOrder ? 1 : 0) + bestMatchLength];
@@ -457,15 +459,19 @@ const advancedNLP = (text, lang = 'en') => {
 			else if (!bestMatch && !detectedPreference && qty !== null && i + 1 < tokens.length) {
 				// Unknown item fallback logic (e.g., "9 pizza")
 				const nextToken = tokens[i + 1];
-				if (!['and', 'with', 'plus'].includes(nextToken)) {
+				const nextTokenNorm = normalizeText(nextToken);
+
+				// CHECK IF NEXT TOKEN IS A STOP WORD OR CONJUNCTION
+				if (STOP_WORDS.includes(nextTokenNorm) || ['and', 'with', 'plus'].includes(nextTokenNorm)) {
+					// Ignore "to me", "2 please", etc.
+					i++;
+				} else {
 					detectedIntents.push({
 						type: 'UNKNOWN',
 						data: nextToken,
 						qty: qty
 					});
 					i += 2;
-				} else {
-					i++;
 				}
 			} else {
 				i++;
