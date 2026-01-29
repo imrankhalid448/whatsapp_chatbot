@@ -64,7 +64,7 @@ app.post('/webhook', async (req, res) => {
 
         // Mock Transcription for user feedback (as requested)
         // In production, insert: const text = await transcribe(message.audio.id);
-        const mockText = "Spicy"; // Temporary mock for testing flow
+        const mockText = "2 Burgers"; // Default mock to demonstrate NLP (better than "Spicy" which fails at menu)
 
         // Reply with feedback
         const feedbackUrl = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
@@ -123,7 +123,7 @@ app.post('/webhook', async (req, res) => {
             }
           );
           // Small delay for natural flow
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (error) {
           console.error('Error sending WhatsApp reply:', error.response ? error.response.data : error.message);
         }
