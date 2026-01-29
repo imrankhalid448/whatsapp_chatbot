@@ -17,37 +17,27 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_2';
+const TEST_USER = 'test_user_3';
 
-console.log("Starting Refined Bot Simulation (Sequential Logic)...");
+console.log("Starting Mixed Preference Simulation (User Scenario)...");
 
-// 1. Initial greeting with "menu please" immediately
-simulate(TEST_USER, "menu please");
+// 1. Initial greeting
+simulate(TEST_USER, "hi");
 
-// 2. Select "Burgers & Meals" (Button ID)
+// 2. Select Burgers category
 simulate(TEST_USER, "cat_burgers_meals");
 
-// 3. Select "Chicken Burger" (Button ID)
-simulate(TEST_USER, "item_1");
+// 3. Select Beef Burger
+simulate(TEST_USER, "item_2");
 
-// 4. Manual quantity "2"
-simulate(TEST_USER, "2");
+// 4. Choose "More" for quantity
+simulate(TEST_USER, "qty_more");
 
-// 5. Should have asked for Spicy/Regular - Select "Spicy"
-simulate(TEST_USER, "spicy_yes");
+// 5. Type quantity "8"
+simulate(TEST_USER, "8");
 
-// 6. Complex sequential NLP: "Add 1 beef burger and 3 water"
-// Note: Beef burger might also prompt for preference if it's in burgers category
-simulate(TEST_USER, "Add 1 beef burger and 3 water");
+// 6. User specfic case: "4 sicy and 4 non spicy"
+simulate(TEST_USER, "4 sicy and 4 non spicy");
 
-// 7. Handle preference for beef burger
-simulate(TEST_USER, "spicy_no");
-
-// 8. Typos and conjunctions: "and 2 Zingerrs"
-simulate(TEST_USER, "and 2 Zingerrs");
-
-// 9. Handle preference for Zinger
-simulate(TEST_USER, "spicy_yes");
-
-// 10. Finish order
+// 7. Verify result and finish
 simulate(TEST_USER, "finish_order");

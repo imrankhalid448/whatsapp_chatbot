@@ -120,11 +120,13 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
     }
 
     if (nextIntent.type === 'ITEM') {
-        const item = nextIntent.data;
+        const item = nextIntent.data || state.currentItem;
+        if (!item) return processSequentially(remaining, state.cart, currentLang, state, messages);
+
         const qty = nextIntent.qty || 1;
         const action = nextIntent.action || 'ADD';
         const preference = nextIntent.preference;
-        const needsSpicy = item.catId === 'burgers';
+        const needsSpicy = item.catId === 'burgers' || item.id === '4'; // Extra check for Zinger Spicy
         const itemName = currentLang === 'ar' ? item.name.ar : item.name.en;
 
         if (action === 'REMOVE') {
