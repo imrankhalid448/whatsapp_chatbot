@@ -251,6 +251,12 @@ app.post('/send', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  try {
+    const downloadModel = require('./download_model');
+    await downloadModel();
+  } catch (err) {
+    console.error("Failed to download Vosk model:", err);
+  }
 });
