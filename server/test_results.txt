@@ -1,6 +1,6 @@
-Starting '8 Coffee 4 Drinks' Fix Simulation...
+Starting Intent Preservation Verification...
 
---- [User: test_user_mixed_qty] Message: "hi" ---
+--- [User: test_user_intent_preservation] Message: "hi" ---
 Bot (Button): Welcome to JOANA Fast Food
 
 Branches:
@@ -29,32 +29,31 @@ Branches:
 Please choose an option:
 Buttons: [Order via Text (Len: 14)], [Order via Voice (Len: 15)]
 
---- [User: test_user_mixed_qty] Message: "cat_burgers_meals" ---
-Bot (Button): Select an option
-Buttons: [Chicken Burger (Len: 14)], [Beef Burger (Len: 11)], [More (Len: 4)]
-
---- [User: test_user_mixed_qty] Message: "8 coffee 4 drinks" ---
-Bot (Text): Added 8x Coffee to your cart
-Bot (Text): Thank you for ordering 4 Drinks. Please tell us which type you would like.
+--- [User: test_user_intent_preservation] Message: "5 drinks 23 wraps and 9 pizza" ---
+[DEBUG] Processing intent: CATEGORY (Qty: 5). Remaining: 2
+Bot (Text): Thank you for ordering 5 Drinks. Please tell us which type you would like.
 Bot (Button): Select an option
 Buttons: [Pepsi (Len: 5)], [Water (Len: 5)], [More (Len: 4)]
 
---- [User: test_user_mixed_qty] Message: "3 pepsi and 1 water" ---
-Bot (Text): Added 3x Pepsi to your cart
+--- [User: test_user_intent_preservation] Message: "Water" ---
+[DEBUG] Processing intent: ITEM (Qty: 1). Remaining: 2
+[DEBUG] Processing intent: UNKNOWN (Qty: 23). Remaining: 1
+[DEBUG] Processing intent: UNKNOWN (Qty: 9). Remaining: 0
 Bot (Text): Added 1x Water to your cart
+Bot (Text): Sorry, "wrap" is not on our menu.
+Bot (Text): Sorry, "pizza" is not on our menu.
 Bot (Text): *Order Summary*
 ────────────────
 *📦 Drinks*
-  1. Pepsi
-  3 x 2.5 = 7.5 SAR
-  2. Water
+  1. Water
   1 x 1.5 = 1.5 SAR
-  3. Coffee
-  8 x 3 = 24 SAR
 
 ────────────────
-*Total: 33 SAR*
+*Total: 1.5 SAR*
 
 Your order has been completed.
 Bot (Button): Would you like to add more items?
 Buttons: [Add More (Len: 8)], [Finish Order (Len: 12)]
+
+--- [User: test_user_intent_preservation] Message: "item_7" ---
+Bot (Text): I didn't understand that. Please use the buttons or type naturally (e.g., '2 burgers', '3 coffee').

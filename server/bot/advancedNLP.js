@@ -161,6 +161,22 @@ const advancedNLP = (text, lang = 'en') => {
 			}
 
 			if (best || qty !== null || preference !== null) {
+				// Heuristic: If we have a quantity but NO item/cat/pref match, and there is a next token,
+				// it might be an unknown item (e.g., "9 pizza").
+				if (!best && !preference && qty !== null && i + 1 < tokens.length) {
+					const nextToken = tokens[i + 1];
+					// Ensure next token isn't a skip word
+					if (!['and', 'with', 'plus'].includes(nextToken)) {
+						intents.push({
+							type: 'UNKNOWN',
+							data: nextToken,
+							qty: qty
+						});
+						i += 2; // Consume qty and the unknown token
+						continue;
+					}
+				}
+
 				intents.push({
 					type: bestType || 'ITEM', // If null, defaults to ITEM (context fallback)
 					data: best, // If null, will trigger context fallback in engine.js

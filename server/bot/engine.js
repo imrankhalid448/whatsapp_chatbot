@@ -92,6 +92,7 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
 
     const nextIntent = intents[0];
     const remaining = intents.slice(1);
+    console.log(`[DEBUG] Processing intent: ${nextIntent.type} (Qty: ${nextIntent.qty}). Remaining: ${remaining.length}`);
 
     if (nextIntent.type === 'CATEGORY') {
         const categoryId = nextIntent.data.id;
@@ -122,6 +123,11 @@ function processSequentially(intents, currentCart, currentLang, state, messages 
         if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
         messages.push({ type: 'button', body: t.select_option, buttons });
         return messages;
+    }
+
+    if (nextIntent.type === 'UNKNOWN') {
+        messages.push(currentLang === 'ar' ? `عذراً، "${nextIntent.data}" غير موجود في القائمة.` : `Sorry, "${nextIntent.data}" is not on our menu.`);
+        return processSequentially(remaining, state.cart, currentLang, state, messages);
     }
 
     if (nextIntent.type === 'ITEM') {
@@ -318,8 +324,15 @@ function processMessage(userId, text) {
     }
 
     // 4. NLP & Intent Fallback
+    // 4. NLP & Intent Fallback
     const nlpIntents = advancedNLP(standardizedInput, currentLang);
-    if (nlpIntents.length > 0) return processSequentially(nlpIntents, state.cart, currentLang, state);
+    if (nlpIntents.length > 0) {
+        // CRITICAL FIX: Merge new intents with any pending intents from previous steps (e.g., "5 drinks" -> prompt -> "water" -> resume "23 wraps")
+        const combinedIntents = [...nlpIntents, ...state.pendingIntents];
+        // Clear pending intents from state as they are now being actively processed/re-queued
+        state.pendingIntents = [];
+        return processSequentially(combinedIntents, state.cart, currentLang, state);
+    }
 
     const explicitIntent = detectIntent(standardizedInput, currentLang);
     if (explicitIntent) {

@@ -17,21 +17,28 @@ function simulate(userId, text) {
     }
 }
 
-const TEST_USER = 'test_user_mixed_qty';
+const TEST_USER = 'test_user_intent_preservation';
 
-console.log("Starting '8 Coffee 4 Drinks' Fix Simulation...");
+console.log("Starting Intent Preservation Verification...");
 
 // 1. Initial greeting
 simulate(TEST_USER, "hi");
 
-// 2. Select Burgers & Meals (just to get started)
-simulate(TEST_USER, "cat_burgers_meals");
+// 2. Complex command: Category -> Category -> Unknown
+// "5 drinks" (Should pause for selection)
+// "23 wraps" (Should be preserved in pending)
+// "9 pizza" (Should be preserved in pending, then rejected)
+simulate(TEST_USER, "5 drinks 23 wraps and 9 pizza");
 
-// 3. User types complex mixed command
+// 3. User selects "Water" in response to "Which drink?"
 // EXPECTED:
-// - Added 8x Coffee
-// - Thank you for ordering 4 Drinks... (NOT 1)
-simulate(TEST_USER, "8 coffee 4 drinks");
+// - Added 5x Water
+// - [RESUME PENDING]: Processing "23 Wraps" -> Prompt "Which wrap?"
+// - [RESUME PENDING]: Processing "9 Pizza" -> Error "Sorry, pizza not on menu" (after wrap selection? No, wrap pauses too).
+simulate(TEST_USER, "Water");
 
-// 4. Verify the drinks flow follows up
-simulate(TEST_USER, "3 pepsi and 1 water");
+// 4. If prompt is for Wraps, select "Regular Tortilla Zinger"
+// EXPECTED:
+// - Added 23x Regular Tortilla Zinger
+// - [RESUME PENDING]: Processing "9 Pizza" -> Error "Sorry, pizza not on menu"
+simulate(TEST_USER, "item_7"); 
