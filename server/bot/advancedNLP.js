@@ -192,7 +192,7 @@ const CATEGORY_ALIASES = {
 	'sides': ['side', 'sides', 'snack', 'snacks', 'مقبلات', 'المقبلات', 'سناك', 'جانبية', 'اطباق جانبية', 'جانبيه', 'أطباق جانبية'],
 	'meals': ['meal', 'meals', 'وجبة', 'الوجبات', 'وجبات', 'بوكس', 'كومبو'],
 	'juices': ['juice', 'juices', 'عصير', 'العصائر', 'عصائر', 'عصيرات'],
-	'drinks': ['drink', 'drinks', 'beverage', 'beverages', 'مشروب', 'المشروبات', 'مشروبات', 'ساخن', 'بارد', 'غازي']
+	'drinks': ['drink', 'drinks', 'coffee', 'coffees', 'beverage', 'beverages', 'مشروب', 'المشروبات', 'مشروبات', 'ساخن', 'بارد', 'غازي', 'قهوة', 'قهوه']
 };
 
 const normalizeText = (text) => {

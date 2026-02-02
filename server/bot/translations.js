@@ -3,6 +3,7 @@ module.exports = {
 	en: {
 		welcome: "Welcome to JOANA Fast Food\nBranches:\n",
 		choose_option: "\nPlease choose an option:",
+		and: "and",
 		order_text: "Order via Text",
 		order_voice: "Order via Voice",
 		choose_category: "Please choose a category:",
@@ -76,6 +77,7 @@ module.exports = {
 	ar: {
 		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\nالفروع:\n",
 		choose_option: "\nالرجاء اختيار خيار:",
+		and: "و",
 		order_text: "الطلب نصياً",
 		order_voice: "الطلب صوتياً",
 		choose_category: "تفضل قائمة الطعام:",
