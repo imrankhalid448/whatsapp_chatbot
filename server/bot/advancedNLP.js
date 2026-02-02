@@ -229,6 +229,10 @@ const loadMassTypos = () => {
 	return {};
 };
 
+const escapeRegExp = (string) => {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 const applyTypoCorrection = (text, lang = 'en') => {
 	let corrected = text.toLowerCase();
 	const corrections = lang === 'ar' ? TYPO_CORRECTIONS_AR : TYPO_CORRECTIONS;
@@ -242,7 +246,9 @@ const applyTypoCorrection = (text, lang = 'en') => {
 
 	sortedKeys.forEach(typo => {
 		const correct = allCorrections[typo];
-		const regex = new RegExp(`(^|\\s)${typo}($|\\s)`, 'gi');
+		// ESCAPE TO PREVENT CRASHES with characters like ( ) [ ] + *
+		const escapedTypo = escapeRegExp(typo);
+		const regex = new RegExp(`(^|\\s)${escapedTypo}($|\\s)`, 'gi');
 		corrected = corrected.replace(regex, (match, p1, p2) => `${p1}${correct}${p2}`);
 	});
 
