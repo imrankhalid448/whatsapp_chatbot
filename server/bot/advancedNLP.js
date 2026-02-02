@@ -542,13 +542,32 @@ const loadKeywords = () => {
 		const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 		KEYWORDS_CACHE = {
 			en: new Set([...data.en.abuse, ...data.en.irrelevant]),
-			ar: new Set([...data.ar.abuse, ...data.ar.ar_irrelevant || data.ar.irrelevant])
+			ar: new Set([...data.ar.abuse, ...data.ar.ar_irrelevant || data.ar.irrelevant]),
+			frustration_en: new Set(data.en.frustration || []),
+			appreciation_en: new Set(data.en.appreciation || []),
+			frustration_ar: new Set(data.ar.frustration || []),
+			appreciation_ar: new Set(data.ar.appreciation || [])
 		};
 		return KEYWORDS_CACHE;
 	} catch (err) {
 		console.error('Failed to load keywords.json:', err);
 		return { en: new Set(), ar: new Set() };
 	}
+};
+
+const detectSentiment = (text, lang = 'en') => {
+	const keywords = loadKeywords();
+	const lower = text.toLowerCase();
+
+	// Check Frustration
+	const frustSet = lang === 'ar' ? keywords.frustration_ar : keywords.frustration_en;
+	if (frustSet && [...frustSet].some(k => lower.includes(k))) return 'FRUSTRATION';
+
+	// Check Appreciation
+	const apprecSet = lang === 'ar' ? keywords.appreciation_ar : keywords.appreciation_en;
+	if (apprecSet && [...apprecSet].some(k => lower.includes(k))) return 'APPRECIATION';
+
+	return 'NEUTRAL';
 };
 
 const isIrrelevant = (text, lang = 'en') => {
@@ -572,5 +591,6 @@ module.exports = {
 	advancedNLP,
 	applyTypoCorrection,
 	textToNumber,
-	isIrrelevant
+	isIrrelevant,
+	detectSentiment
 };

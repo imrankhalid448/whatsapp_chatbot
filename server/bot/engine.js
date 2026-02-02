@@ -3,6 +3,8 @@ const branchInfo = require('./branchInfo');
 const translations = require('./translations');
 const { advancedNLP, applyTypoCorrection, isIrrelevant } = require('./advancedNLP');
 const { detectIntent } = require('./intentDetection');
+const conversationManager = require('./conversationManager');
+const anaphora = require('./anaphora');
 
 const sessions = {};
 const INITIAL_STATE = {
@@ -14,7 +16,10 @@ const INITIAL_STATE = {
     itemOffset: 0,
     allCategoryItems: [],
     pendingIntents: [],
-    currentIntent: null
+    currentIntent: null,
+    history: [], // For context awareness
+    pendingOrder: null, // For slot filling
+    userProfile: {} // For learned preferences
 };
 
 function getSession(userId) {
@@ -215,6 +220,10 @@ function processMessage(userId, text) {
     const currentLang = state.language;
 
     const t = translations[currentLang];
+
+    // TRACKING: Log User Message
+    conversationManager.addMessage(state, 'user', text, { step: state.step });
+
     const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
     let cleanText = standardizedInput.trim();
 
@@ -235,7 +244,81 @@ function processMessage(userId, text) {
     }
 
     // ============================================
-    // B. ABUSE & IRRELEVANT HANDLING
+    // A.1 Contextual Intelligence (Anaphora & Quantity)
+    // ============================================
+    const lastItem = conversationManager.getLastItemContext(state);
+
+    // 1. Check for Contextual Quantity ("Make it 5")
+    const newQty = anaphora.extractContextualQuantity(cleanText, currentLang);
+    if (newQty && lastItem && state.cart.length > 0) {
+        // Find the item in the cart to update
+        const cartIndex = state.cart.findIndex(i => i.id === lastItem.id && i.name.en === lastItem.name.en);
+        if (cartIndex !== -1) {
+            state.cart[cartIndex].qty = newQty;
+            state.cart[cartIndex].totalPrice = state.cart[cartIndex].price * newQty;
+
+            // Log Bot Action
+            const response = t.added_to_cart.replace('{qty}', newQty).replace('{item}', currentLang === 'ar' ? lastItem.name.ar : lastItem.name.en);
+            conversationManager.addMessage(state, 'bot', response, { context: { item: lastItem } });
+
+            return [response];
+        }
+    }
+
+    // 2. Resolve Pronouns ("Make it spicy")
+    const resolvedRef = anaphora.resolveReference(cleanText, lastItem, currentLang);
+    if (resolvedRef) {
+        // Inject resolved item name into text for downstream NLP
+        // e.g. "make it spicy" -> "make burger spicy"
+        const itemName = currentLang === 'ar' ? resolvedRef.target.name.ar : resolvedRef.target.name.en;
+        cleanText = `${cleanText} ${itemName}`;
+    }
+
+    // ============================================
+    // A.2 Intelligent Error Recovery ("No, I meant...")
+    // ============================================
+    const correctionMatch = cleanText.match(/^(no|non|not|la|ma|cancel)\W+(i meant|i want|make it|actually|change|badal|ghayer|ureed|abgha)\W+(.*)/i);
+    // e.g. "No I meant burger", "Cancel that I want wraps"
+
+    if (correctionMatch && state.cart.length > 0) {
+        // Assume user is correcting the LAST item added
+        const lastAdded = state.cart[state.cart.length - 1];
+        const newIntentText = correctionMatch[3];
+
+        // Undo last action
+        state.cart.pop();
+
+        // Log & Notify
+        const undoMsg = currentLang === 'ar'
+            ? `👍 تم إلغاء ${lastAdded.name.ar}. جاري البحث عن طلبك الجديد...`
+            : `👍 Removed ${lastAdded.name.en}. Looking for your new request...`;
+
+        // Process new intent recursively
+        const nextResults = processMessage(userId, newIntentText);
+        return [undoMsg, ...nextResults];
+    }
+
+    // ============================================
+    // B. SENTIMENT & EQ HANDLING (Frustration/Appreciation)
+    // ============================================
+    const sentiment = detectSentiment(cleanText, currentLang);
+    if (sentiment === 'FRUSTRATION') {
+        state.step = 'CATEGORY_SELECTION';
+        state.currentItem = null; // Reset context
+        const apologize = currentLang === 'ar'
+            ? "أعتذر إذا كنت لم أفهمك بشكل صحيح. 😓 لنبدأ من جديد. تفضل القائمة:"
+            : "I apologize if I'm not understanding correctly. 😓 Let's start fresh. Here is the menu:";
+
+        return [apologize, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
+    } else if (sentiment === 'APPRECIATION') {
+        const thanks = currentLang === 'ar' ? "سعيد جداً بخدمتك! 😊 هل تود طلب شيء آخر؟" : "Happy to help! 😊 Would you like to order anything else?";
+        // Don't return immediately, allow them to continue browsing if intent matches
+        // But if no intent, return thanks
+        if (isIrrelevant(cleanText, currentLang)) return [thanks];
+    }
+
+    // ============================================
+    // C. ABUSE & IRRELEVANT HANDLING
     // ============================================
     if (isIrrelevant(cleanText, currentLang)) {
         // Basic abuse detection
@@ -388,32 +471,57 @@ function processMessage(userId, text) {
     }
 
     if (state.step === 'ITEM_SPICY') {
-        // 1. Check for SPLIT preference (e.g. "1 spicy 1 regular")
-        const spicyMatch = cleanText.match(/(\d+)\s+(spicy|hot)/i);
-        const regularMatch = cleanText.match(/(\d+)\s+(non-spicy|non_spicy|regular|normal|ordinary|no spicy)/i);
+        // MULTI-TURN & SPLIT PREFERENCE LOGIC
+        // handles:
+        // 1. "yes" (simple)
+        // 2. "1 spicy 1 regular" (split)
+        // 3. "spicy and add coke" (multi-turn)
 
-        let spicyQty = spicyMatch ? parseInt(spicyMatch[1]) : 0;
-        let regularQty = regularMatch ? parseInt(regularMatch[1]) : 0;
+        const choice = cleanText;
+        const currentItem = state.currentItem;
+        const totalQty = currentItem.qty || 1;
 
-        // If simple "spicy" or "regular" without numbers, use total qty
-        const totalQty = state.currentItem.qty || 1;
+        let spicyQty = 0;
+        let regularQty = 0;
+        let isMultiTurn = false;
+        let remainingText = '';
 
-        if (cleanText === 'spicy_yes' || (!spicyMatch && (cleanText === 'spicy' || cleanText === 'hot'))) {
-            spicyQty = totalQty;
-        } else if (cleanText === 'spicy_no' || (!regularMatch && (cleanText === 'non-spicy' || cleanText === 'regular' || cleanText === 'normal' || cleanText === 'non_spicy'))) {
-            regularQty = totalQty;
+        // A. Check for Split Preference (e.g. "1 spicy 1 regular")
+        const spicyMatch = choice.match(/(\d+)\s+(spicy|hot|حار|سبايسي)/i);
+        const regularMatch = choice.match(/(\d+)\s+(non-spicy|non_spicy|regular|normal|ordinary|no spicy|عادي|بدون)/i);
+
+        if (spicyMatch || regularMatch) {
+            spicyQty = spicyMatch ? parseInt(spicyMatch[1]) : 0;
+            regularQty = regularMatch ? parseInt(regularMatch[1]) : 0;
+        }
+        // B. Check for Simple Preference (applies to ALL)
+        else {
+            if (choice === 'spicy_yes' || /(yes|spicy|hot|حار|نعم|سبايسي)/i.test(choice)) {
+                spicyQty = totalQty;
+            } else if (choice === 'spicy_no' || /(no|regular|normal|عادي|لا|بدون)/i.test(choice)) {
+                regularQty = totalQty;
+            }
+        }
+
+        // C. Check for Multi-Turn Intent (if preference found but text remains)
+        if (spicyQty > 0 || regularQty > 0) {
+            // Remove preference words to see if anything is left for a new order
+            const prefRegex = /(yes|spicy|hot|حار|نعم|سبايسي|no|regular|normal|عادي|لا|بدون|\d+)/gi;
+            const potentialNewOrder = choice.replace(prefRegex, '').replace(/(and|و)/g, '').trim();
+
+            if (potentialNewOrder.length > 2) {
+                isMultiTurn = true;
+                remainingText = potentialNewOrder;
+            }
         }
 
         if (spicyQty > 0 || regularQty > 0) {
-            // Add Spicy Items
+            // Add Items to Cart
             if (spicyQty > 0) {
-                const itemSpicy = { ...state.currentItem, preference: 'spicy' };
-                for (let i = 0; i < spicyQty; i++) state.cart.push(itemSpicy);
+                for (let i = 0; i < spicyQty; i++) state.cart.push({ ...currentItem, preference: 'spicy' });
             }
-            // Add Regular Items
             if (regularQty > 0) {
-                const itemRegular = { ...state.currentItem, preference: 'non-spicy' };
-                for (let i = 0; i < regularQty; i++) state.cart.push(itemRegular);
+                for (let i = 0; i < regularQty; i++) state.cart.push({ ...currentItem, preference: 'non-spicy' });
             }
 
             const spicyStr = spicyQty > 0 ? `${spicyQty}x ${t.spicy}` : '';
@@ -421,8 +529,21 @@ function processMessage(userId, text) {
             const summaryStr = [spicyStr, regularStr].filter(Boolean).join(` ${t.and} `);
             const totalAdded = spicyQty + regularQty;
 
-            const msg = `${t.added_to_cart} ${totalAdded}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} (${summaryStr}) ${t.to_your_cart}`;
-            state.step = 'ITEMS_LIST';
+            const msg = `${t.added_to_cart} ${totalAdded}x ${currentLang === 'ar' ? currentItem.name.ar : currentItem.name.en} (${summaryStr}) ${t.to_your_cart}`;
+
+            // Log successful add
+            conversationManager.addMessage(state, 'bot', msg, { context: { item: currentItem } });
+
+            state.step = 'CATEGORY_SELECTION';
+            state.currentItem = null;
+            state.pendingOrder = null;
+
+            // Execute Multi-Turn Recursion
+            if (isMultiTurn) {
+                const nextResults = processMessage(userId, remainingText);
+                return [msg, ...nextResults];
+            }
+
             return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
         }
     }
