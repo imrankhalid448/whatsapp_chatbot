@@ -1,7 +1,7 @@
 const menu = require('./menu');
 const branchInfo = require('./branchInfo');
 const translations = require('./translations');
-const { advancedNLP, applyTypoCorrection } = require('./advancedNLP');
+const { advancedNLP, applyTypoCorrection, isIrrelevant } = require('./advancedNLP');
 const { detectIntent } = require('./intentDetection');
 
 const sessions = {};
@@ -217,6 +217,31 @@ function processMessage(userId, text) {
     const t = translations[currentLang];
     const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
     let cleanText = standardizedInput.trim();
+
+    // ============================================
+    // A. GLOBAL CRISIS COMMANDS (Cancel at any stage)
+    // ============================================
+    if (cleanText.includes('cancel_order') || cleanText === 'cancel') {
+        state.step = 'CANCEL_MENU';
+        return [{
+            type: 'button',
+            body: t.cancel_menu,
+            buttons: [
+                { id: 'cancel_all', title: t.cancel_all },
+                { id: 'cancel_item', title: t.cancel_item },
+                { id: 'cancel_go_back', title: t.go_back }
+            ]
+        }];
+    }
+
+    // ============================================
+    // B. ABUSE & IRRELEVANT HANDLING
+    // ============================================
+    if (isIrrelevant(cleanText, currentLang)) {
+        // Basic abuse detection
+        const isAbuse = /(bad|stupid|idiot|fuck|shit|كلب|حمار|وسخ)/i.test(cleanText);
+        return [isAbuse ? t.abuse_response : t.irrelevant_response];
+    }
 
     // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
@@ -510,25 +535,6 @@ function processMessage(userId, text) {
     // 4. NLP & Intent Fallback
     // 4. NLP & Intent Fallback
     // Check for Meta Commands (Typo Corrected) - Bypasses intent detection for robustness
-    if (cleanText.includes('finish_order')) {
-        cleanText = 'finish_order';
-    } else if (cleanText.includes('cancel_order')) {
-        cleanText = 'cancel_order';
-        state.step = 'CANCEL_MENU';
-        return [{
-            type: 'button',
-            body: t.cancel_menu,
-            buttons: [
-                { id: 'cancel_all', title: t.cancel_all },
-                { id: 'cancel_item', title: t.cancel_item },
-                { id: 'cancel_go_back', title: t.go_back }
-            ]
-        }];
-    } else if (cleanText.includes('cancel_all')) {
-        cleanText = 'cancel_all';
-    }
-
-    // Check again after forcing
     if (cleanText === 'finish_order') {
         if (state.cart.length === 0) return [t.cart_empty];
         const summary = getOrderSummaryText(state.cart, currentLang, t);

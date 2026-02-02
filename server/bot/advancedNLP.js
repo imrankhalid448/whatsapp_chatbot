@@ -119,6 +119,8 @@ const TYPO_CORRECTIONS = {
 	'finese': 'finish_order', 'finishe': 'finish_order',
 	'cancel': 'cancel_order', 'cancl': 'cancel_order', 'cancell': 'cancel_order', 'cancle': 'cancel_order',
 	'canel': 'cancel_order', 'cancal': 'cancel_order', 'canc': 'cancel_order',
+	'close': 'cancel_order', 'cancel the deal': 'cancel_order', 'destroy': 'cancel_order',
+	'stop': 'cancel_order', 'quit': 'cancel_order', 'abort': 'cancel_order',
 	'order': 'order', 'ordr': 'order', 'ordere': 'order', 'odr': 'order',
 	'done': 'finish_order', 'don': 'finish_order', 'doen': 'finish_order', 'dun': 'finish_order',
 
@@ -155,6 +157,8 @@ const TYPO_CORRECTIONS_AR = {
 	'الحسا': 'الحساب', 'الفاتوره': 'الفاتورة',
 	'خلصنا': 'finish_order', 'إلغاء الطلب': 'cancel_order', 'إنهاء الطلب': 'finish_order',
 	'انهاء': 'finish_order', 'إنهاء': 'finish_order', 'الغاء': 'cancel_order', 'إلغاء': 'cancel_order',
+	'اغلق': 'cancel_order', 'توقف': 'cancel_order', 'خلاص': 'cancel_order', 'بلاش': 'cancel_order',
+	'كنسل': 'cancel_order', 'إسحب': 'cancel_order', 'الغ الطلب': 'cancel_order',
 
 	// ========== ACTION ARABIC ==========
 	'حذف': 'remove', 'ازالة': 'remove', 'إزالة': 'remove', 'كنسل': 'remove',
@@ -485,8 +489,23 @@ const advancedNLP = (text, lang = 'en') => {
 	}
 };
 
+const isIrrelevant = (text, lang = 'en') => {
+	const irrelevantKeywords = [
+		'joke', 'weather', 'news', 'movie', 'song', 'who are you', 'what is your name',
+		'bad', 'stupid', 'idiot', 'pigs', 'dog', 'fuck', 'shit', 'hell', 'shut up'
+	];
+	const irrelevantKeywordsAr = [
+		'نكته', 'جو', 'اخبار', 'فلم', 'اغنيه', 'من انت', 'ايش اسمك',
+		'غبي', 'كلب', 'حمار', 'وسخ', 'انقلع', 'اسكت'
+	];
+	const keywords = lang === 'ar' ? irrelevantKeywordsAr : irrelevantKeywords;
+	const lower = text.toLowerCase();
+	return keywords.some(k => lower.includes(k));
+};
+
 module.exports = {
 	advancedNLP,
 	applyTypoCorrection,
-	textToNumber
+	textToNumber,
+	isIrrelevant
 };
