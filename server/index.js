@@ -121,8 +121,11 @@ app.post('/webhook', async (req, res) => {
               responseType: 'arraybuffer'
             });
 
-            const session = getSession(from);
-            const voskText = await transcribeAudio(audioData.data, session.language || 'en');
+            const session = botEngine.getSession(from);
+            const userLang = session ? (session.language || 'en') : 'en';
+            console.log(`Transcribing for ${from} in ${userLang}...`);
+
+            const voskText = await transcribeAudio(audioData.data, userLang);
 
             if (voskText && voskText.trim().length > 0) {
               msgBody = voskText;

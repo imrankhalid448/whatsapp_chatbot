@@ -14,10 +14,6 @@ const TYPO_CORRECTIONS = {
 	'burgurs': 'burger', 'burder': 'burger', 'birger': 'burger', 'borger': 'burger',
 	'burrgerr': 'burger', 'burrrrger': 'burger', 'burgere': 'burger', 'brgrs': 'burger',
 	'burg': 'burger', 'borgar': 'burger', 'burgi': 'burger', 'borger': 'burger',
-	'breger': 'burger', 'bruger': 'burger', 'burgir': 'burger', 'burgr': 'burger',
-	'beurger': 'burger', 'burgeur': 'burger', 'burgair': 'burger', 'burgere': 'burger',
-	'burgur': 'burger', 'burgar': 'burger', 'burgare': 'burger', 'burgeri': 'burger',
-	'burgere': 'burger', 'burgerrr': 'burger', 'burggeer': 'burger', 'brgrrr': 'burger',
 	'girl': 'burger', 'grill': 'burger', 'grille': 'burger', 'super': 'spicy', 'supper': 'spicy',
 	'super girl': 'spicy burger', 'super girl 3': '3 spicy burger',
 	'broasted': 'barosted', 'brost': 'barosted', 'barosted': 'barosted', 'brostid': 'barosted',
@@ -30,14 +26,12 @@ const TYPO_CORRECTIONS = {
 	'chckin': 'chicken', 'chikeen': 'chicken', 'chickeen': 'chicken', 'chikin': 'chicken',
 	'chichin': 'chicken', 'cheken': 'chicken', 'chekin': 'chicken', 'chiken': 'chicken',
 	'chikken': 'chicken', 'cicken': 'chicken', 'chicekn': 'chicken',
-	'shecken': 'chicken', 'shiken': 'chicken', 'xhicken': 'chicken', 'tchicken': 'chicken',
 
 	// ========== BEEF VARIATIONS ==========
 	'beef': 'beef', 'beefs': 'beef', 'befe': 'beef', 'beefe': 'beef',
 	'bef': 'beef', 'beaf': 'beef', 'beeff': 'beef', 'beif': 'beef',
 	'beff': 'beef', 'beov': 'beef', 'beefz': 'beef', 'beeffe': 'beef',
 	'bif': 'beef', 'beife': 'beef', 'beffy': 'beef', 'befo': 'beef',
-	'beev': 'beef', 'biek': 'beef', 'baaf': 'beef', 'beaf': 'beef',
 
 	// ========== COFFEE VARIATIONS ==========
 	'coffee': 'coffee', 'coffees': 'coffee', 'coffe': 'coffee', 'cofee': 'coffee',
@@ -51,8 +45,8 @@ const TYPO_CORRECTIONS = {
 
 	// ========== WATER VARIATIONS ==========
 	'water': 'water', 'waters': 'water', 'watr': 'water', 'wter': 'water',
-	'waiter': 'water', 'watere': 'water',
-	'watter': 'water', 'wateer': 'water', 'waterr': 'water',
+	'what': 'water', 'what a': 'water', 'waiter': 'water', 'watere': 'water',
+	'watter': 'water', 'watere': 'water', 'wateer': 'water', 'waterr': 'water',
 
 	// ========== WRAP / TORTILLA VARIATIONS ==========
 	'wrap': 'wraps', 'wraps': 'wraps', 'wrp': 'wraps', 'warp': 'wraps', 'wrapp': 'wraps',
@@ -73,9 +67,7 @@ const TYPO_CORRECTIONS = {
 	// ========== PEPSI VARIATIONS ==========
 	'pepsi': 'pepsi', 'pepsis': 'pepsi', 'pepsy': 'pepsi', 'bepsy': 'pepsi', 'bessi': 'pepsi',
 	'pepci': 'pepsi', 'pepsii': 'pepsi', 'pepsie': 'pepsi', 'pepzie': 'pepsi',
-	'peps': 'pepsi', 'pipsi': 'pepsi', 'papsi': 'pepsi', 'pebsi': 'pepsi',
-	'babsi': 'pepsi', 'bebsi': 'pepsi', 'bebs': 'pepsi', 'pebs': 'pepsi',
-	'bibsi': 'pepsi', 'pepsi-cola': 'pepsi', 'pepcy': 'pepsi', 'pepsi': 'pepsi',
+	'peps': 'pepsi',
 
 	// ========== ZINGER & KABAB ==========
 	'zinger': 'zinger', 'zingers': 'zinger', 'singer': 'zinger', 'finger': 'zinger',
@@ -127,8 +119,6 @@ const TYPO_CORRECTIONS = {
 	'finese': 'finish_order', 'finishe': 'finish_order',
 	'cancel': 'cancel_order', 'cancl': 'cancel_order', 'cancell': 'cancel_order', 'cancle': 'cancel_order',
 	'canel': 'cancel_order', 'cancal': 'cancel_order', 'canc': 'cancel_order',
-	'close': 'cancel_order', 'cancel the deal': 'cancel_order', 'destroy': 'cancel_order',
-	'stop': 'cancel_order', 'quit': 'cancel_order', 'abort': 'cancel_order',
 	'order': 'order', 'ordr': 'order', 'ordere': 'order', 'odr': 'order',
 	'done': 'finish_order', 'don': 'finish_order', 'doen': 'finish_order', 'dun': 'finish_order',
 
@@ -165,8 +155,6 @@ const TYPO_CORRECTIONS_AR = {
 	'الحسا': 'الحساب', 'الفاتوره': 'الفاتورة',
 	'خلصنا': 'finish_order', 'إلغاء الطلب': 'cancel_order', 'إنهاء الطلب': 'finish_order',
 	'انهاء': 'finish_order', 'إنهاء': 'finish_order', 'الغاء': 'cancel_order', 'إلغاء': 'cancel_order',
-	'اغلق': 'cancel_order', 'توقف': 'cancel_order', 'خلاص': 'cancel_order', 'بلاش': 'cancel_order',
-	'كنسل': 'cancel_order', 'إسحب': 'cancel_order', 'الغ الطلب': 'cancel_order',
 
 	// ========== ACTION ARABIC ==========
 	'حذف': 'remove', 'ازالة': 'remove', 'إزالة': 'remove', 'كنسل': 'remove',
@@ -179,10 +167,7 @@ const TYPO_CORRECTIONS_AR = {
 	'عسير': 'عصير', 'عصيرو': 'عصير',
 	'تورتلا': 'تورتيلا', 'توتلا': 'تورتيلا', 'ترتلا': 'تورتيلا',
 	'برجر': 'برجر', 'برغر': 'برجر', 'برقر': 'برجر', 'همبرجر': 'برجر',
-	'برجرر': 'برجر', 'برجره': 'برجر', 'برجرة': 'برجر', 'بجر': 'برجر', 'برجز': 'برجر',
-	'واحد': '1', 'اثنين': '2', 'ثلاثة': '3', 'أربعة': '4', 'اربعة': '4', 'خمسة': '5',
-	'حار': 'spicy', 'سبايسي': 'spicy', 'فلغل': 'spicy', 'شطه': 'spicy', 'حراق': 'spicy',
-	'بروست': 'barosted', 'بروستد': 'barosted', 'بروستد دجاج': 'barosted chicken'
+	'واحد': '1', 'اثنين': '2', 'ثلاثة': '3', 'أربعة': '4', 'اربعة': '4', 'خمسة': '5'
 };
 
 const CATEGORY_ALIASES = {
@@ -192,63 +177,27 @@ const CATEGORY_ALIASES = {
 	'sides': ['side', 'sides', 'snack', 'snacks', 'مقبلات', 'المقبلات', 'سناك', 'جانبية', 'اطباق جانبية', 'جانبيه', 'أطباق جانبية'],
 	'meals': ['meal', 'meals', 'وجبة', 'الوجبات', 'وجبات', 'بوكس', 'كومبو'],
 	'juices': ['juice', 'juices', 'عصير', 'العصائر', 'عصائر', 'عصيرات'],
-	'drinks': ['drink', 'drinks', 'coffee', 'coffees', 'beverage', 'beverages', 'مشروب', 'المشروبات', 'مشروبات', 'ساخن', 'بارد', 'غازي', 'قهوة', 'قهوه']
+	'drinks': ['drink', 'drinks', 'beverage', 'beverages', 'مشروب', 'المشروبات', 'مشروبات', 'ساخن', 'بارد', 'غازي']
 };
 
 const normalizeText = (text) => {
 	if (!text) return '';
-	let norm = text.toLowerCase()
+	return text.toLowerCase()
 		.replace(/(.)\1{2,}/g, '$1') // Remove excessive repetitions
 		.replace(/[^a-z0-9\u0600-\u06FF\s]/g, '') // Remove special chars
 		.trim();
-
-	// Arabic Specific Normalization
-	norm = norm
-		.replace(/[أإآ]/g, 'ا')
-		.replace(/ة/g, 'ه')
-		.replace(/ى/g, 'ي')
-		.replace(/ئ/g, 'ي')
-		.replace(/ؤ/g, 'و');
-
-	return norm;
-};
-
-let MASS_TYPOS = null;
-const loadMassTypos = () => {
-	if (MASS_TYPOS) return MASS_TYPOS;
-	try {
-		const filePath = path.join(__dirname, 'mass_typos.json');
-		const fs = require('fs');
-		if (fs.existsSync(filePath)) {
-			MASS_TYPOS = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-			return MASS_TYPOS;
-		}
-	} catch (e) {
-		console.error('Failed to load mass_typos.json');
-	}
-	return {};
-};
-
-const escapeRegExp = (string) => {
-	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
 const applyTypoCorrection = (text, lang = 'en') => {
 	let corrected = text.toLowerCase();
 	const corrections = lang === 'ar' ? TYPO_CORRECTIONS_AR : TYPO_CORRECTIONS;
-	const massCorrections = loadMassTypos();
-
-	// Combine hardcoded and generated typos
-	const allCorrections = { ...massCorrections, ...corrections };
 
 	// Sort keys by length descending to replace longest matches first
-	const sortedKeys = Object.keys(allCorrections).sort((a, b) => b.length - a.length);
+	const sortedKeys = Object.keys(corrections).sort((a, b) => b.length - a.length);
 
 	sortedKeys.forEach(typo => {
-		const correct = allCorrections[typo];
-		// ESCAPE TO PREVENT CRASHES with characters like ( ) [ ] + *
-		const escapedTypo = escapeRegExp(typo);
-		const regex = new RegExp(`(^|\\s)${escapedTypo}($|\\s)`, 'gi');
+		const correct = corrections[typo];
+		const regex = new RegExp(`(^|\\s)${typo}($|\\s)`, 'gi');
 		corrected = corrected.replace(regex, (match, p1, p2) => `${p1}${correct}${p2}`);
 	});
 
@@ -536,67 +485,8 @@ const advancedNLP = (text, lang = 'en') => {
 	}
 };
 
-const fs = require('fs');
-const path = require('path');
-
-let KEYWORDS_CACHE = null;
-
-const loadKeywords = () => {
-	if (KEYWORDS_CACHE) return KEYWORDS_CACHE;
-	try {
-		const filePath = path.join(__dirname, 'keywords.json');
-		const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-		KEYWORDS_CACHE = {
-			en: new Set([...data.en.abuse, ...data.en.irrelevant]),
-			ar: new Set([...data.ar.abuse, ...data.ar.ar_irrelevant || data.ar.irrelevant]),
-			frustration_en: new Set(data.en.frustration || []),
-			appreciation_en: new Set(data.en.appreciation || []),
-			frustration_ar: new Set(data.ar.frustration || []),
-			appreciation_ar: new Set(data.ar.appreciation || [])
-		};
-		return KEYWORDS_CACHE;
-	} catch (err) {
-		console.error('Failed to load keywords.json:', err);
-		return { en: new Set(), ar: new Set() };
-	}
-};
-
-const detectSentiment = (text, lang = 'en') => {
-	const keywords = loadKeywords();
-	const lower = text.toLowerCase();
-
-	// Check Frustration
-	const frustSet = lang === 'ar' ? keywords.frustration_ar : keywords.frustration_en;
-	if (frustSet && [...frustSet].some(k => lower.includes(k))) return 'FRUSTRATION';
-
-	// Check Appreciation
-	const apprecSet = lang === 'ar' ? keywords.appreciation_ar : keywords.appreciation_en;
-	if (apprecSet && [...apprecSet].some(k => lower.includes(k))) return 'APPRECIATION';
-
-	return 'NEUTRAL';
-};
-
-const isIrrelevant = (text, lang = 'en') => {
-	const keywords = loadKeywords();
-	const currentSet = lang === 'ar' ? keywords.ar : keywords.en;
-	const lower = text.toLowerCase();
-	const tokens = lower.split(/\s+/);
-
-	// Check for exact word matches (O(1) with Set)
-	if (tokens.some(t => currentSet.has(t))) return true;
-
-	// Check for multi-word phrase matches (O(N))
-	for (const k of currentSet) {
-		if (k.includes(' ') && lower.includes(k)) return true;
-	}
-
-	return false;
-};
-
 module.exports = {
 	advancedNLP,
 	applyTypoCorrection,
-	textToNumber,
-	isIrrelevant,
-	detectSentiment
+	textToNumber
 };

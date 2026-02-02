@@ -1,30 +1,50 @@
 const vosk = require('vosk');
 const fs = require('fs');
-const path = require('path');
 const { Readable } = require('stream');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-const MODELS_CONFIG = {
-    'en': { path: path.join(__dirname, 'model-en') },
-    'ar': { path: path.join(__dirname, 'model-ar') }
-};
+const path = require('path');
 
-const loadedModels = {};
+let currentModel = null;
+let currentLang = null;
 
 function initModel(lang = 'en') {
-    const config = MODELS_CONFIG[lang] || MODELS_CONFIG['en'];
-    if (!fs.existsSync(config.path)) {
-        console.error(`Vosk model not found at ${config.path}`);
+    const modelDir = lang === 'ar' ? 'model-ar' : 'model-en';
+
+    // If we already have the correct model loaded, return it
+    if (currentModel && currentLang === lang) {
+        return currentModel;
+    }
+
+    // New language requested? Free the old one to save RAM
+    if (currentModel) {
+        console.log(`Switching language from ${currentLang} to ${lang}. Freeing old model...`);
+        try {
+            currentModel.free(); // Free C++ memory
+        } catch (e) {
+            console.error("Error freeing model:", e);
+        }
+        currentModel = null;
+        global.gc && global.gc(); // Optional: Suggest JS GC
+    }
+
+    if (!fs.existsSync(modelDir)) {
+        console.error(`Vosk model not found at ${modelDir}`);
+        return null; // Fallback or Error
+    }
+
+    console.log(`Loading Vosk Model for language: ${lang} (${modelDir})...`);
+    vosk.setLogLevel(-1);
+    try {
+        currentModel = new vosk.Model(modelDir);
+        currentLang = lang;
+        return currentModel;
+    } catch (err) {
+        console.error("Failed to load Vosk model:", err);
         return null;
     }
-    if (!loadedModels[lang]) {
-        console.log(`Loading Vosk ${lang} model...`);
-        vosk.setLogLevel(-1);
-        loadedModels[lang] = new vosk.Model(config.path);
-    }
-    return loadedModels[lang];
 }
 
 function transcribeAudio(audioBuffer, lang = 'en') {
@@ -34,12 +54,14 @@ function transcribeAudio(audioBuffer, lang = 'en') {
 
         const rec = new vosk.Recognizer({ model: model, sampleRate: 16000 });
 
+        // Convert OGG/Audio Buffer to PCM via FFmpeg
         const command = ffmpeg(Readable.from(audioBuffer))
             .audioFrequency(16000)
             .audioChannels(1)
-            .format('s16le')
+            .format('s16le') // Raw PCM 16-bit
             .on('error', (err) => {
                 console.error("FFmpeg error:", err);
+                rec.free();
                 reject(err);
             });
 

@@ -3,7 +3,6 @@ module.exports = {
 	en: {
 		welcome: "Welcome to JOANA Fast Food\nBranches:\n",
 		choose_option: "\nPlease choose an option:",
-		and: "and",
 		order_text: "Order via Text",
 		order_voice: "Order via Voice",
 		choose_category: "Please choose a category:",
@@ -69,15 +68,11 @@ module.exports = {
 		nlp_qty_wraps: "For your {qty} wraps, please select what you would like to add.",
 		nlp_browse_category: "Here are our {name}. Please select which one you would like to add.",
 		nlp_browse_wraps: "Please select which wrap you would like to add.",
-		order_completed: "Your order has been completed.",
-		irrelevant_response: "I'm here to help you order delicious food! 🍔 Please select from the menu or type your order (e.g., '2 burgers').",
-		abuse_response: "I'm a professional AI assistant for JOANA Fast Food. Let's keep things focus on your order! How can I help you eat today?",
-		welcome_cta: "🎙️ **Tip:** You can order by typing or sending a voice note! Or simply choose from the menu below:"
+		order_completed: "Your order has been completed."
 	},
 	ar: {
 		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\nالفروع:\n",
 		choose_option: "\nالرجاء اختيار خيار:",
-		and: "و",
 		order_text: "الطلب نصياً",
 		order_voice: "الطلب صوتياً",
 		choose_category: "تفضل قائمة الطعام:",
@@ -143,9 +138,6 @@ module.exports = {
 		nlp_qty_wraps: "بالنسبة لـ {qty} لفائف، يرجى اختيار ما تود إضافته.",
 		nlp_browse_category: "تفضل {name}. يرجى اختيار النوع الذي تفضله.",
 		nlp_browse_wraps: "يرجى اختيار نوع اللفائف الذي تفضله.",
-		order_completed: "تم إكمال طلبك.",
-		irrelevant_response: "أنا هنا لمساعدتك في طلب أشهى الوجبات! 🍔 يرجى الاختيار من القائمة أو كتابة طلبك (مثال: '٢ برجر').",
-		abuse_response: "أنا مساعد آلي احترافي لمطعم جوانا. دعنا نركز على طلبك! كيف يمكنني مساعدتك اليوم؟",
-		welcome_cta: "🎙️ **تلميح:** يمكنك الطلب عبر الكتابة أو إرسال رسالة صوتية! أو اختر من القائمة أدناه:"
+		order_completed: "تم إكمال طلبك."
 	}
 };

@@ -1,10 +1,8 @@
 const menu = require('./menu');
 const branchInfo = require('./branchInfo');
 const translations = require('./translations');
-const { advancedNLP, applyTypoCorrection, isIrrelevant, detectSentiment } = require('./advancedNLP');
+const { advancedNLP, applyTypoCorrection } = require('./advancedNLP');
 const { detectIntent } = require('./intentDetection');
-const conversationManager = require('./conversationManager');
-const anaphora = require('./anaphora');
 
 const sessions = {};
 const INITIAL_STATE = {
@@ -16,10 +14,7 @@ const INITIAL_STATE = {
     itemOffset: 0,
     allCategoryItems: [],
     pendingIntents: [],
-    currentIntent: null,
-    history: [], // For context awareness
-    pendingOrder: null, // For slot filling
-    userProfile: {} // For learned preferences
+    currentIntent: null
 };
 
 function getSession(userId) {
@@ -220,189 +215,8 @@ function processMessage(userId, text) {
     const currentLang = state.language;
 
     const t = translations[currentLang];
-
-    // TRACKING: Log User Message
-    conversationManager.addMessage(state, 'user', text, { step: state.step });
-
     const standardizedInput = applyTypoCorrection(normalizedInput, currentLang);
     let cleanText = standardizedInput.trim();
-
-    // ============================================
-    // A. GLOBAL CRISIS COMMANDS (Cancel at any stage)
-    // ============================================
-    if (cleanText.includes('cancel_order') || cleanText === 'cancel') {
-        state.step = 'CANCEL_MENU';
-        return [{
-            type: 'button',
-            body: t.cancel_menu,
-            buttons: [
-                { id: 'cancel_all', title: t.cancel_all },
-                { id: 'cancel_item', title: t.cancel_item },
-                { id: 'cancel_go_back', title: t.go_back }
-            ]
-        }];
-    }
-
-    // ============================================
-    // A.1 Contextual Intelligence (Anaphora & Quantity)
-    // ============================================
-    const lastItem = conversationManager.getLastItemContext(state);
-
-    // 1. Check for Contextual Quantity ("Make it 5")
-    const newQty = anaphora.extractContextualQuantity(cleanText, currentLang);
-    if (newQty && lastItem && state.cart.length > 0) {
-        // Find the item in the cart to update
-        const cartIndex = state.cart.findIndex(i => i.id === lastItem.id && i.name.en === lastItem.name.en);
-        if (cartIndex !== -1) {
-            state.cart[cartIndex].qty = newQty;
-            state.cart[cartIndex].totalPrice = state.cart[cartIndex].price * newQty;
-
-            // Log Bot Action
-            const response = t.added_to_cart.replace('{qty}', newQty).replace('{item}', currentLang === 'ar' ? lastItem.name.ar : lastItem.name.en);
-            conversationManager.addMessage(state, 'bot', response, { context: { item: lastItem } });
-
-            return [response];
-        }
-    }
-
-    // 2. Resolve Pronouns ("Make it spicy")
-    const resolvedRef = anaphora.resolveReference(cleanText, lastItem, currentLang);
-    if (resolvedRef) {
-        // Inject resolved item name into text for downstream NLP
-        // e.g. "make it spicy" -> "make burger spicy"
-        const itemName = currentLang === 'ar' ? resolvedRef.target.name.ar : resolvedRef.target.name.en;
-        cleanText = `${cleanText} ${itemName}`;
-    }
-
-    // ============================================
-    // A.2 Intelligent Error Recovery ("No, I meant...")
-    // ============================================
-    const correctionMatch = cleanText.match(/^(no|non|not|la|ma|cancel)\W+(i meant|i want|make it|actually|change|badal|ghayer|ureed|abgha)\W+(.*)/i);
-    // e.g. "No I meant burger", "Cancel that I want wraps"
-
-    if (correctionMatch && state.cart.length > 0) {
-        // Assume user is correcting the LAST item added
-        const lastAdded = state.cart[state.cart.length - 1];
-        const newIntentText = correctionMatch[3];
-
-        // Undo last action
-        state.cart.pop();
-
-        // Log & Notify
-        const undoMsg = currentLang === 'ar'
-            ? `👍 تم إلغاء ${lastAdded.name.ar}. جاري البحث عن طلبك الجديد...`
-            : `👍 Removed ${lastAdded.name.en}. Looking for your new request...`;
-
-        // Process new intent recursively
-        const nextResults = processMessage(userId, newIntentText);
-        return [undoMsg, ...nextResults];
-    }
-
-    // ============================================
-    // B. SENTIMENT & EQ HANDLING (Frustration/Appreciation)
-    // ============================================
-    const sentiment = detectSentiment(cleanText, currentLang);
-    if (sentiment === 'FRUSTRATION') {
-        state.step = 'CATEGORY_SELECTION';
-        state.currentItem = null; // Reset context
-        const apologize = currentLang === 'ar'
-            ? "أعتذر إذا كنت لم أفهمك بشكل صحيح. 😓 لنبدأ من جديد. تفضل القائمة:"
-            : "I apologize if I'm not understanding correctly. 😓 Let's start fresh. Here is the menu:";
-
-        return [apologize, { type: 'button', body: t.here_is_menu, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }];
-    } else if (sentiment === 'APPRECIATION') {
-        const thanks = currentLang === 'ar' ? "سعيد جداً بخدمتك! 😊 هل تود طلب شيء آخر؟" : "Happy to help! 😊 Would you like to order anything else?";
-        // Don't return immediately, allow them to continue browsing if intent matches
-        // But if no intent, return thanks
-        if (isIrrelevant(cleanText, currentLang)) return [thanks];
-    }
-
-    // ============================================
-    // C. ABUSE & IRRELEVANT HANDLING
-    // ============================================
-    // ============================================
-    // C. INIT & WELCOME FLOW (FIRST INTERACTION)
-    // ============================================
-    if (state.step === 'INIT') {
-        // Force language logic
-        if (!state.language) {
-            state.language = isArabicInput ? 'ar' : 'en';
-        }
-
-        const tWelcome = translations[state.language];
-
-        // Construct Branch Info Message
-        let branchMsg = state.language === 'ar' ? "📍 *فروعنا:*\n" : "📍 *Our Branches:*\n";
-        branchInfo.branches.forEach(b => {
-            const name = state.language === 'ar' ? b.nameAr : b.name;
-            branchMsg += `• ${name}\n  📞 ${b.phone}\n`;
-        });
-        branchMsg += `\n⏰ ${state.language === 'ar' ? "ساعات العمل: ١٢ م - ٢ ص" : "Hours: 12PM - 2AM"}`;
-
-        state.step = 'CATEGORY_SELECTION';
-
-        return [
-            tWelcome.welcome,
-            branchMsg,
-            {
-                type: 'button',
-                body: tWelcome.welcome_cta,
-                buttons: [
-                    { id: 'cat_burgers_meals', title: tWelcome.burgers_meals },
-                    { id: 'cat_sandwiches_wraps', title: tWelcome.sandwiches_wraps },
-                    { id: 'cat_snacks_sides', title: tWelcome.snacks_sides }
-                ]
-            }
-        ];
-    }
-
-    if (isIrrelevant(cleanText, currentLang)) {
-        // Basic abuse detection
-        const isAbuse = /(bad|stupid|idiot|fuck|shit|hate|ugly|dirty|useless|كلب|حمار|وسخ|غبي|اكرهك|قبيح)/i.test(cleanText);
-        return [isAbuse ? t.abuse_response : t.irrelevant_response];
-    }
-
-    // ============================================
-    // C. META INTENT DETECTION (Menu, Browsing, Greetings)
-    // ============================================
-    const metaIntent = detectIntent(cleanText, currentLang);
-    if (metaIntent) {
-        if (metaIntent.intent === 'BROWSE_ALL_CATEGORIES') {
-            state.step = 'CATEGORY_SELECTION';
-            return [
-                t.choose_category,
-                {
-                    type: 'button',
-                    body: t.here_is_menu,
-                    buttons: [
-                        { id: 'cat_burgers_meals', title: t.burgers_meals },
-                        { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
-                        { id: 'cat_snacks_sides', title: t.snacks_sides }
-                    ]
-                }
-            ];
-        } else if (metaIntent.intent === 'BROWSE_CATEGORY' && metaIntent.categoryId) {
-            // Force cat ID for browsing
-            state.step = 'ITEMS_LIST';
-            state.itemOffset = 0;
-            const catId = metaIntent.categoryId;
-            const allItems = [];
-            (menu.items[catId] || []).forEach(item => allItems.push({ ...item, catId }));
-            state.allCategoryItems = allItems;
-
-            const itemsToShow = allItems.slice(0, 2);
-            const buttons = itemsToShow.map(item => ({
-                id: `item_${item.id}`,
-                title: (currentLang === 'ar' ? item.name.ar : item.name.en).substring(0, 20)
-            }));
-            if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
-
-            return [
-                t.nlp_browse_category.replace('{name}', currentLang === 'ar' ? (translations.ar[catId] || catId) : catId),
-                { type: 'button', body: t.select_option, buttons }
-            ];
-        }
-    }
 
     // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
@@ -507,57 +321,32 @@ function processMessage(userId, text) {
     }
 
     if (state.step === 'ITEM_SPICY') {
-        // MULTI-TURN & SPLIT PREFERENCE LOGIC
-        // handles:
-        // 1. "yes" (simple)
-        // 2. "1 spicy 1 regular" (split)
-        // 3. "spicy and add coke" (multi-turn)
+        // 1. Check for SPLIT preference (e.g. "1 spicy 1 regular")
+        const spicyMatch = cleanText.match(/(\d+)\s+(spicy|hot)/i);
+        const regularMatch = cleanText.match(/(\d+)\s+(non-spicy|non_spicy|regular|normal|ordinary|no spicy)/i);
 
-        const choice = cleanText;
-        const currentItem = state.currentItem;
-        const totalQty = currentItem.qty || 1;
+        let spicyQty = spicyMatch ? parseInt(spicyMatch[1]) : 0;
+        let regularQty = regularMatch ? parseInt(regularMatch[1]) : 0;
 
-        let spicyQty = 0;
-        let regularQty = 0;
-        let isMultiTurn = false;
-        let remainingText = '';
+        // If simple "spicy" or "regular" without numbers, use total qty
+        const totalQty = state.currentItem.qty || 1;
 
-        // A. Check for Split Preference (e.g. "1 spicy 1 regular")
-        const spicyMatch = choice.match(/(\d+)\s+(spicy|hot|حار|سبايسي)/i);
-        const regularMatch = choice.match(/(\d+)\s+(non-spicy|non_spicy|regular|normal|ordinary|no spicy|عادي|بدون)/i);
-
-        if (spicyMatch || regularMatch) {
-            spicyQty = spicyMatch ? parseInt(spicyMatch[1]) : 0;
-            regularQty = regularMatch ? parseInt(regularMatch[1]) : 0;
-        }
-        // B. Check for Simple Preference (applies to ALL)
-        else {
-            if (choice === 'spicy_yes' || /(yes|spicy|hot|حار|نعم|سبايسي)/i.test(choice)) {
-                spicyQty = totalQty;
-            } else if (choice === 'spicy_no' || /(no|regular|normal|عادي|لا|بدون)/i.test(choice)) {
-                regularQty = totalQty;
-            }
-        }
-
-        // C. Check for Multi-Turn Intent (if preference found but text remains)
-        if (spicyQty > 0 || regularQty > 0) {
-            // Remove preference words to see if anything is left for a new order
-            const prefRegex = /(yes|spicy|hot|حار|نعم|سبايسي|no|regular|normal|عادي|لا|بدون|\d+)/gi;
-            const potentialNewOrder = choice.replace(prefRegex, '').replace(/(and|و)/g, '').trim();
-
-            if (potentialNewOrder.length > 2) {
-                isMultiTurn = true;
-                remainingText = potentialNewOrder;
-            }
+        if (cleanText === 'spicy_yes' || (!spicyMatch && (cleanText === 'spicy' || cleanText === 'hot'))) {
+            spicyQty = totalQty;
+        } else if (cleanText === 'spicy_no' || (!regularMatch && (cleanText === 'non-spicy' || cleanText === 'regular' || cleanText === 'normal' || cleanText === 'non_spicy'))) {
+            regularQty = totalQty;
         }
 
         if (spicyQty > 0 || regularQty > 0) {
-            // Add Items to Cart
+            // Add Spicy Items
             if (spicyQty > 0) {
-                for (let i = 0; i < spicyQty; i++) state.cart.push({ ...currentItem, preference: 'spicy' });
+                const itemSpicy = { ...state.currentItem, preference: 'spicy' };
+                for (let i = 0; i < spicyQty; i++) state.cart.push(itemSpicy);
             }
+            // Add Regular Items
             if (regularQty > 0) {
-                for (let i = 0; i < regularQty; i++) state.cart.push({ ...currentItem, preference: 'non-spicy' });
+                const itemRegular = { ...state.currentItem, preference: 'non-spicy' };
+                for (let i = 0; i < regularQty; i++) state.cart.push(itemRegular);
             }
 
             const spicyStr = spicyQty > 0 ? `${spicyQty}x ${t.spicy}` : '';
@@ -565,21 +354,8 @@ function processMessage(userId, text) {
             const summaryStr = [spicyStr, regularStr].filter(Boolean).join(` ${t.and} `);
             const totalAdded = spicyQty + regularQty;
 
-            const msg = `${t.added_to_cart} ${totalAdded}x ${currentLang === 'ar' ? currentItem.name.ar : currentItem.name.en} (${summaryStr}) ${t.to_your_cart}`;
-
-            // Log successful add
-            conversationManager.addMessage(state, 'bot', msg, { context: { item: currentItem } });
-
-            state.step = 'CATEGORY_SELECTION';
-            state.currentItem = null;
-            state.pendingOrder = null;
-
-            // Execute Multi-Turn Recursion
-            if (isMultiTurn) {
-                const nextResults = processMessage(userId, remainingText);
-                return [msg, ...nextResults];
-            }
-
+            const msg = `${t.added_to_cart} ${totalAdded}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} (${summaryStr}) ${t.to_your_cart}`;
+            state.step = 'ITEMS_LIST';
             return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
         }
     }
@@ -734,6 +510,25 @@ function processMessage(userId, text) {
     // 4. NLP & Intent Fallback
     // 4. NLP & Intent Fallback
     // Check for Meta Commands (Typo Corrected) - Bypasses intent detection for robustness
+    if (cleanText.includes('finish_order')) {
+        cleanText = 'finish_order';
+    } else if (cleanText.includes('cancel_order')) {
+        cleanText = 'cancel_order';
+        state.step = 'CANCEL_MENU';
+        return [{
+            type: 'button',
+            body: t.cancel_menu,
+            buttons: [
+                { id: 'cancel_all', title: t.cancel_all },
+                { id: 'cancel_item', title: t.cancel_item },
+                { id: 'cancel_go_back', title: t.go_back }
+            ]
+        }];
+    } else if (cleanText.includes('cancel_all')) {
+        cleanText = 'cancel_all';
+    }
+
+    // Check again after forcing
     if (cleanText === 'finish_order') {
         if (state.cart.length === 0) return [t.cart_empty];
         const summary = getOrderSummaryText(state.cart, currentLang, t);

@@ -5,46 +5,46 @@ const unzipper = require('unzipper');
 
 const MODELS = [
     {
-        name: 'model-en',
         url: "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip",
-        folder: 'vosk-model-small-en-us-0.15'
+        name: "vosk-model-small-en-us-0.15",
+        dest: "model-en"
     },
     {
-        name: 'model-ar',
-        url: "https://alphacephei.com/vosk/models/vosk-model-ar-0.22-linto-1.1.0.zip",
-        folder: 'vosk-model-ar-0.22-linto-1.1.0'
+        url: "https://alphacephei.com/vosk/models/vosk-model-ar-mgb2-0.4.zip",
+        name: "vosk-model-ar-mgb2-0.4",
+        dest: "model-ar"
     }
 ];
 
 async function downloadModel() {
-    for (const modelInfo of MODELS) {
-        const targetDir = path.join(__dirname, modelInfo.name);
-        if (!fs.existsSync(targetDir)) {
-            console.log(`Downloading Vosk ${modelInfo.name} Model...`);
+    for (const model of MODELS) {
+        const destPath = path.join(__dirname, model.dest);
+        if (!fs.existsSync(destPath)) {
+            console.log(`Downloading ${model.name} (via Axios)...`);
             try {
                 const response = await axios({
                     method: 'get',
-                    url: modelInfo.url,
+                    url: model.url,
                     responseType: 'stream'
                 });
 
                 await new Promise((resolve, reject) => {
                     response.data.pipe(unzipper.Extract({ path: __dirname }))
                         .on('close', () => {
-                            fs.renameSync(path.join(__dirname, modelInfo.folder), targetDir);
-                            console.log(`Model ${modelInfo.name} downloaded and extracted.`);
+                            fs.renameSync(path.join(__dirname, model.name), destPath);
+                            console.log(`${model.name} downloaded and extracted to /${model.dest}`);
                             resolve();
                         })
                         .on('error', (err) => {
-                            console.error(`Unzip error for ${modelInfo.name}:`, err);
+                            console.error(`Unzip error for ${model.name}:`, err);
                             reject(err);
                         });
                 });
             } catch (error) {
-                console.error(`Download error for ${modelInfo.name}:`, error.message);
+                console.error(`Download error for ${model.name}:`, error.message);
             }
         } else {
-            console.log(`Model ${modelInfo.name} already exists.`);
+            console.log(`${model.dest} already exists.`);
         }
     }
 }
