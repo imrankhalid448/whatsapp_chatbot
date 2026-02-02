@@ -10,8 +10,8 @@ const MODELS = [
         dest: "model-en"
     },
     {
-        url: "https://alphacephei.com/vosk/models/vosk-model-ar-mgb2-0.4.zip",
-        name: "vosk-model-ar-mgb2-0.4",
+        url: "https://alphacephei.com/vosk/models/vosk-model-small-ar-0.3.zip",
+        name: "vosk-model-small-ar-0.3",
         dest: "model-ar"
     }
 ];

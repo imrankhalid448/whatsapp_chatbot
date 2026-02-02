@@ -219,29 +219,10 @@ function processMessage(userId, text) {
     let cleanText = standardizedInput.trim();
 
     // 1. INIT Logic (Prioritized to handle first message)
-    // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
-        state.step = 'LANGUAGE_SELECTION';
-        return [{
-            type: 'button',
-            body: "Please choose your language / الرجاء اختيار اللغة:",
-            buttons: [
-                { id: 'lang_en', title: "English 🇬🇧" },
-                { id: 'lang_ar', title: "العربية 🇸🇦" }
-            ]
-        }];
-    }
-
-    // 2. Language Selection Handling
-    if (state.step === 'LANGUAGE_SELECTION' || cleanText === 'lang_en' || cleanText === 'lang_ar') {
-        if (cleanText === 'lang_en') state.language = 'en';
-        if (cleanText === 'lang_ar') state.language = 'ar';
-
-        // Refresh t based on selected language
-        const t = translations[state.language];
-
         state.step = 'CATEGORY_SELECTION';
-        const welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${state.language === 'ar' ? (b.nameAr || b.name) : b.name}\n   ${b.phone}`).join('\n') + t.choose_option;
+        // Language will be auto-detected by processMessage logic at top of function
+        const welcomeMsg = t.welcome + branchInfo.branches.map((b, i) => `${i + 1}. ${currentLang === 'ar' ? (b.nameAr || b.name) : b.name}\n   ${b.phone}`).join('\n') + t.choose_option;
         return [{
             type: 'button',
             body: welcomeMsg,

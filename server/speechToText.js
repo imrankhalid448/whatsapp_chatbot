@@ -11,31 +11,27 @@ let currentModel = null;
 let currentLang = null;
 
 function initModel(lang = 'en') {
-    const modelDir = lang === 'ar' ? 'model-ar' : 'model-en';
 
     // If we already have the correct model loaded, return it
     if (currentModel && currentLang === lang) {
         return currentModel;
     }
 
-    // New language requested? Free the old one to save RAM
+    // New language requested? Reset references
     if (currentModel) {
-        console.log(`Switching language from ${currentLang} to ${lang}. Freeing old model...`);
-        try {
-            currentModel.free(); // Free C++ memory
-        } catch (e) {
-            console.error("Error freeing model:", e);
-        }
+        console.log(`Switching language from ${currentLang} to ${lang}...`);
+        // Note: vosk.Model doesn't have a .free() method in these bindings, 
+        // it's managed by the garbage collector. Just nullify it.
         currentModel = null;
-        global.gc && global.gc(); // Optional: Suggest JS GC
     }
 
+    const modelDir = path.join(__dirname, lang === 'ar' ? 'model-ar' : 'model-en');
     if (!fs.existsSync(modelDir)) {
         console.error(`Vosk model not found at ${modelDir}`);
-        return null; // Fallback or Error
+        return null;
     }
 
-    console.log(`Loading Vosk Model for language: ${lang} (${modelDir})...`);
+    console.log(`Loading Vosk Model: ${lang} from ${modelDir}`);
     vosk.setLogLevel(-1);
     try {
         currentModel = new vosk.Model(modelDir);
@@ -49,16 +45,17 @@ function initModel(lang = 'en') {
 
 function transcribeAudio(audioBuffer, lang = 'en') {
     return new Promise((resolve, reject) => {
-        const model = initModel(lang);
+        const model = initModel(lang || 'en');
         if (!model) return resolve(null);
 
         const rec = new vosk.Recognizer({ model: model, sampleRate: 16000 });
+        let chunkCount = 0;
 
         // Convert OGG/Audio Buffer to PCM via FFmpeg
         const command = ffmpeg(Readable.from(audioBuffer))
             .audioFrequency(16000)
             .audioChannels(1)
-            .format('s16le') // Raw PCM 16-bit
+            .format('s16le')
             .on('error', (err) => {
                 console.error("FFmpeg error:", err);
                 rec.free();
@@ -68,12 +65,14 @@ function transcribeAudio(audioBuffer, lang = 'en') {
         const stream = command.pipe();
 
         stream.on('data', chunk => {
+            chunkCount++;
             rec.acceptWaveform(chunk);
         });
 
         stream.on('end', () => {
             const result = rec.finalResult();
             rec.free();
+            console.log(`Transcribed (${lang}): result="${result.text}", chunks=${chunkCount}`);
             resolve(result.text);
         });
     });
