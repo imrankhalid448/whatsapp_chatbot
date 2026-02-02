@@ -489,18 +489,42 @@ const advancedNLP = (text, lang = 'en') => {
 	}
 };
 
+const fs = require('fs');
+const path = require('path');
+
+let KEYWORDS_CACHE = null;
+
+const loadKeywords = () => {
+	if (KEYWORDS_CACHE) return KEYWORDS_CACHE;
+	try {
+		const filePath = path.join(__dirname, 'keywords.json');
+		const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+		KEYWORDS_CACHE = {
+			en: new Set([...data.en.abuse, ...data.en.irrelevant]),
+			ar: new Set([...data.ar.abuse, ...data.ar.ar_irrelevant || data.ar.irrelevant])
+		};
+		return KEYWORDS_CACHE;
+	} catch (err) {
+		console.error('Failed to load keywords.json:', err);
+		return { en: new Set(), ar: new Set() };
+	}
+};
+
 const isIrrelevant = (text, lang = 'en') => {
-	const irrelevantKeywords = [
-		'joke', 'weather', 'news', 'movie', 'song', 'who are you', 'what is your name',
-		'bad', 'stupid', 'idiot', 'pigs', 'dog', 'fuck', 'shit', 'hell', 'shut up'
-	];
-	const irrelevantKeywordsAr = [
-		'نكته', 'جو', 'اخبار', 'فلم', 'اغنيه', 'من انت', 'ايش اسمك',
-		'غبي', 'كلب', 'حمار', 'وسخ', 'انقلع', 'اسكت'
-	];
-	const keywords = lang === 'ar' ? irrelevantKeywordsAr : irrelevantKeywords;
+	const keywords = loadKeywords();
+	const currentSet = lang === 'ar' ? keywords.ar : keywords.en;
 	const lower = text.toLowerCase();
-	return keywords.some(k => lower.includes(k));
+	const tokens = lower.split(/\s+/);
+
+	// Check for exact word matches (O(1) with Set)
+	if (tokens.some(t => currentSet.has(t))) return true;
+
+	// Check for multi-word phrase matches (O(N))
+	for (const k of currentSet) {
+		if (k.includes(' ') && lower.includes(k)) return true;
+	}
+
+	return false;
 };
 
 module.exports = {

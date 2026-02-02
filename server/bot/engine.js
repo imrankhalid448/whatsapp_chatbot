@@ -239,7 +239,7 @@ function processMessage(userId, text) {
     // ============================================
     if (isIrrelevant(cleanText, currentLang)) {
         // Basic abuse detection
-        const isAbuse = /(bad|stupid|idiot|fuck|shit|كلب|حمار|وسخ)/i.test(cleanText);
+        const isAbuse = /(bad|stupid|idiot|fuck|shit|hate|ugly|dirty|useless|كلب|حمار|وسخ|غبي|اكرهك|قبيح)/i.test(cleanText);
         return [isAbuse ? t.abuse_response : t.irrelevant_response];
     }
 
