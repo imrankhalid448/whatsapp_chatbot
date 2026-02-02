@@ -1,7 +1,7 @@
 const menu = require('./menu');
 const branchInfo = require('./branchInfo');
 const translations = require('./translations');
-const { advancedNLP, applyTypoCorrection, isIrrelevant } = require('./advancedNLP');
+const { advancedNLP, applyTypoCorrection, isIrrelevant, detectSentiment } = require('./advancedNLP');
 const { detectIntent } = require('./intentDetection');
 const conversationManager = require('./conversationManager');
 const anaphora = require('./anaphora');
