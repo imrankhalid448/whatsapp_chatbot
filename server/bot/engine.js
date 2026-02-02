@@ -346,7 +346,7 @@ function processMessage(userId, text) {
             branchMsg,
             {
                 type: 'button',
-                body: tWelcome.here_is_menu,
+                body: tWelcome.welcome_cta,
                 buttons: [
                     { id: 'cat_burgers_meals', title: tWelcome.burgers_meals },
                     { id: 'cat_sandwiches_wraps', title: tWelcome.sandwiches_wraps },

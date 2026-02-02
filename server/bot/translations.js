@@ -70,7 +70,8 @@ module.exports = {
 		nlp_browse_wraps: "Please select which wrap you would like to add.",
 		order_completed: "Your order has been completed.",
 		irrelevant_response: "I'm here to help you order delicious food! 🍔 Please select from the menu or type your order (e.g., '2 burgers').",
-		abuse_response: "I'm a professional AI assistant for JOANA Fast Food. Let's keep things focus on your order! How can I help you eat today?"
+		abuse_response: "I'm a professional AI assistant for JOANA Fast Food. Let's keep things focus on your order! How can I help you eat today?",
+		welcome_cta: "🎙️ **Tip:** You can order by typing or sending a voice note! Or simply choose from the menu below:"
 	},
 	ar: {
 		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\nالفروع:\n",
@@ -142,6 +143,7 @@ module.exports = {
 		nlp_browse_wraps: "يرجى اختيار نوع اللفائف الذي تفضله.",
 		order_completed: "تم إكمال طلبك.",
 		irrelevant_response: "أنا هنا لمساعدتك في طلب أشهى الوجبات! 🍔 يرجى الاختيار من القائمة أو كتابة طلبك (مثال: '٢ برجر').",
-		abuse_response: "أنا مساعد آلي احترافي لمطعم جوانا. دعنا نركز على طلبك! كيف يمكنني مساعدتك اليوم؟"
+		abuse_response: "أنا مساعد آلي احترافي لمطعم جوانا. دعنا نركز على طلبك! كيف يمكنني مساعدتك اليوم؟",
+		welcome_cta: "🎙️ **تلميح:** يمكنك الطلب عبر الكتابة أو إرسال رسالة صوتية! أو اختر من القائمة أدناه:"
 	}
 };
