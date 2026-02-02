@@ -23,6 +23,10 @@ function initModel(lang = 'en') {
         // Note: vosk.Model doesn't have a .free() method in these bindings, 
         // it's managed by the garbage collector. Just nullify it.
         currentModel = null;
+        if (global.gc) {
+            console.log("Triggering manual garbage collection...");
+            global.gc();
+        }
     }
 
     const modelDir = path.join(__dirname, lang === 'ar' ? 'model-ar' : 'model-en');

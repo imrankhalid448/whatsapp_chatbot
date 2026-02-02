@@ -128,26 +128,29 @@ app.post('/webhook', async (req, res) => {
             // 1. Try Primary Language
             let voskText = await transcribeAudio(audioData.data, userLang);
 
-            // 2. Validate using NLP (Check if it has valid items/categories)
+            // 2. Validate using NLP
             const { advancedNLP } = require('./bot/advancedNLP');
             let detected = advancedNLP(voskText, userLang);
             const hasValidIntent = detected.some(d => d.type === 'ITEM' || d.type === 'CATEGORY');
 
-            // 3. If Invalid, Try Alternative Language
-            if (!hasValidIntent) {
+            // 3. SMART SWITCH: Only try other language if result is empty or non-sense
+            // If we got a decent sentence like "how about a month", DON'T try Arabic (prevents OOM)
+            const isVeryShort = !voskText || voskText.trim().length < 3;
+
+            if (!hasValidIntent && isVeryShort) {
               const altLang = userLang === 'en' ? 'ar' : 'en';
-              console.log(`Primary transcription (${userLang}) unclear ("${voskText}"). Trying ${altLang}...`);
+              console.log(`Primary transcription (${userLang}) empty. Trying ${altLang}...`);
+
+              // Small delay to allow memory cleanup
+              await new Promise(r => setTimeout(r, 500));
 
               const altText = await transcribeAudio(audioData.data, altLang);
               const altDetected = advancedNLP(altText, altLang);
 
-              // If alternative result is better (has keywords), switch!
               if (altDetected.some(d => d.type === 'ITEM' || d.type === 'CATEGORY')) {
-                console.log(`Switching language to ${altLang} based on better match: "${altText}"`);
+                console.log(`Switching language to ${altLang} based on match: "${altText}"`);
                 voskText = altText;
-                userLang = altLang; // Update local var for feedback
-
-                // Update Session Language
+                userLang = altLang;
                 if (session) session.language = altLang;
               }
             }
