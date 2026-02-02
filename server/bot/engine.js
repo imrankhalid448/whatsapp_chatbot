@@ -243,6 +243,48 @@ function processMessage(userId, text) {
         return [isAbuse ? t.abuse_response : t.irrelevant_response];
     }
 
+    // ============================================
+    // C. META INTENT DETECTION (Menu, Browsing, Greetings)
+    // ============================================
+    const metaIntent = detectIntent(cleanText, currentLang);
+    if (metaIntent) {
+        if (metaIntent.intent === 'BROWSE_ALL_CATEGORIES') {
+            state.step = 'CATEGORY_SELECTION';
+            return [
+                t.choose_category,
+                {
+                    type: 'button',
+                    body: t.here_is_menu,
+                    buttons: [
+                        { id: 'cat_burgers_meals', title: t.burgers_meals },
+                        { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                        { id: 'cat_snacks_sides', title: t.snacks_sides }
+                    ]
+                }
+            ];
+        } else if (metaIntent.intent === 'BROWSE_CATEGORY' && metaIntent.categoryId) {
+            // Force cat ID for browsing
+            state.step = 'ITEMS_LIST';
+            state.itemOffset = 0;
+            const catId = metaIntent.categoryId;
+            const allItems = [];
+            (menu.items[catId] || []).forEach(item => allItems.push({ ...item, catId }));
+            state.allCategoryItems = allItems;
+
+            const itemsToShow = allItems.slice(0, 2);
+            const buttons = itemsToShow.map(item => ({
+                id: `item_${item.id}`,
+                title: (currentLang === 'ar' ? item.name.ar : item.name.en).substring(0, 20)
+            }));
+            if (allItems.length > 2) buttons.push({ id: 'more_items', title: t.more });
+
+            return [
+                t.nlp_browse_category.replace('{name}', currentLang === 'ar' ? (translations.ar[catId] || catId) : catId),
+                { type: 'button', body: t.select_option, buttons }
+            ];
+        }
+    }
+
     // 1. INIT Logic (Prioritized to handle first message)
     if (state.step === 'INIT') {
         state.step = 'CATEGORY_SELECTION';

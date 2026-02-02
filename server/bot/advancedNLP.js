@@ -14,6 +14,10 @@ const TYPO_CORRECTIONS = {
 	'burgurs': 'burger', 'burder': 'burger', 'birger': 'burger', 'borger': 'burger',
 	'burrgerr': 'burger', 'burrrrger': 'burger', 'burgere': 'burger', 'brgrs': 'burger',
 	'burg': 'burger', 'borgar': 'burger', 'burgi': 'burger', 'borger': 'burger',
+	'breger': 'burger', 'bruger': 'burger', 'burgir': 'burger', 'burgr': 'burger',
+	'beurger': 'burger', 'burgeur': 'burger', 'burgair': 'burger', 'burgere': 'burger',
+	'burgur': 'burger', 'burgar': 'burger', 'burgare': 'burger', 'burgeri': 'burger',
+	'burgere': 'burger', 'burgerrr': 'burger', 'burggeer': 'burger', 'brgrrr': 'burger',
 	'girl': 'burger', 'grill': 'burger', 'grille': 'burger', 'super': 'spicy', 'supper': 'spicy',
 	'super girl': 'spicy burger', 'super girl 3': '3 spicy burger',
 	'broasted': 'barosted', 'brost': 'barosted', 'barosted': 'barosted', 'brostid': 'barosted',
@@ -26,12 +30,14 @@ const TYPO_CORRECTIONS = {
 	'chckin': 'chicken', 'chikeen': 'chicken', 'chickeen': 'chicken', 'chikin': 'chicken',
 	'chichin': 'chicken', 'cheken': 'chicken', 'chekin': 'chicken', 'chiken': 'chicken',
 	'chikken': 'chicken', 'cicken': 'chicken', 'chicekn': 'chicken',
+	'shecken': 'chicken', 'shiken': 'chicken', 'xhicken': 'chicken', 'tchicken': 'chicken',
 
 	// ========== BEEF VARIATIONS ==========
 	'beef': 'beef', 'beefs': 'beef', 'befe': 'beef', 'beefe': 'beef',
 	'bef': 'beef', 'beaf': 'beef', 'beeff': 'beef', 'beif': 'beef',
 	'beff': 'beef', 'beov': 'beef', 'beefz': 'beef', 'beeffe': 'beef',
 	'bif': 'beef', 'beife': 'beef', 'beffy': 'beef', 'befo': 'beef',
+	'beev': 'beef', 'biek': 'beef', 'baaf': 'beef', 'beaf': 'beef',
 
 	// ========== COFFEE VARIATIONS ==========
 	'coffee': 'coffee', 'coffees': 'coffee', 'coffe': 'coffee', 'cofee': 'coffee',
@@ -45,8 +51,8 @@ const TYPO_CORRECTIONS = {
 
 	// ========== WATER VARIATIONS ==========
 	'water': 'water', 'waters': 'water', 'watr': 'water', 'wter': 'water',
-	'what': 'water', 'what a': 'water', 'waiter': 'water', 'watere': 'water',
-	'watter': 'water', 'watere': 'water', 'wateer': 'water', 'waterr': 'water',
+	'waiter': 'water', 'watere': 'water',
+	'watter': 'water', 'wateer': 'water', 'waterr': 'water',
 
 	// ========== WRAP / TORTILLA VARIATIONS ==========
 	'wrap': 'wraps', 'wraps': 'wraps', 'wrp': 'wraps', 'warp': 'wraps', 'wrapp': 'wraps',
@@ -67,7 +73,9 @@ const TYPO_CORRECTIONS = {
 	// ========== PEPSI VARIATIONS ==========
 	'pepsi': 'pepsi', 'pepsis': 'pepsi', 'pepsy': 'pepsi', 'bepsy': 'pepsi', 'bessi': 'pepsi',
 	'pepci': 'pepsi', 'pepsii': 'pepsi', 'pepsie': 'pepsi', 'pepzie': 'pepsi',
-	'peps': 'pepsi',
+	'peps': 'pepsi', 'pipsi': 'pepsi', 'papsi': 'pepsi', 'pebsi': 'pepsi',
+	'babsi': 'pepsi', 'bebsi': 'pepsi', 'bebs': 'pepsi', 'pebs': 'pepsi',
+	'bibsi': 'pepsi', 'pepsi-cola': 'pepsi', 'pepcy': 'pepsi', 'pepsi': 'pepsi',
 
 	// ========== ZINGER & KABAB ==========
 	'zinger': 'zinger', 'zingers': 'zinger', 'singer': 'zinger', 'finger': 'zinger',
@@ -171,7 +179,10 @@ const TYPO_CORRECTIONS_AR = {
 	'عسير': 'عصير', 'عصيرو': 'عصير',
 	'تورتلا': 'تورتيلا', 'توتلا': 'تورتيلا', 'ترتلا': 'تورتيلا',
 	'برجر': 'برجر', 'برغر': 'برجر', 'برقر': 'برجر', 'همبرجر': 'برجر',
-	'واحد': '1', 'اثنين': '2', 'ثلاثة': '3', 'أربعة': '4', 'اربعة': '4', 'خمسة': '5'
+	'برجرر': 'برجر', 'برجره': 'برجر', 'برجرة': 'برجر', 'بجر': 'برجر', 'برجز': 'برجر',
+	'واحد': '1', 'اثنين': '2', 'ثلاثة': '3', 'أربعة': '4', 'اربعة': '4', 'خمسة': '5',
+	'حار': 'spicy', 'سبايسي': 'spicy', 'فلغل': 'spicy', 'شطه': 'spicy', 'حراق': 'spicy',
+	'بروست': 'barosted', 'بروستد': 'barosted', 'بروستد دجاج': 'barosted chicken'
 };
 
 const CATEGORY_ALIASES = {
@@ -186,21 +197,51 @@ const CATEGORY_ALIASES = {
 
 const normalizeText = (text) => {
 	if (!text) return '';
-	return text.toLowerCase()
+	let norm = text.toLowerCase()
 		.replace(/(.)\1{2,}/g, '$1') // Remove excessive repetitions
 		.replace(/[^a-z0-9\u0600-\u06FF\s]/g, '') // Remove special chars
 		.trim();
+
+	// Arabic Specific Normalization
+	norm = norm
+		.replace(/[أإآ]/g, 'ا')
+		.replace(/ة/g, 'ه')
+		.replace(/ى/g, 'ي')
+		.replace(/ئ/g, 'ي')
+		.replace(/ؤ/g, 'و');
+
+	return norm;
+};
+
+let MASS_TYPOS = null;
+const loadMassTypos = () => {
+	if (MASS_TYPOS) return MASS_TYPOS;
+	try {
+		const filePath = path.join(__dirname, 'mass_typos.json');
+		const fs = require('fs');
+		if (fs.existsSync(filePath)) {
+			MASS_TYPOS = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			return MASS_TYPOS;
+		}
+	} catch (e) {
+		console.error('Failed to load mass_typos.json');
+	}
+	return {};
 };
 
 const applyTypoCorrection = (text, lang = 'en') => {
 	let corrected = text.toLowerCase();
 	const corrections = lang === 'ar' ? TYPO_CORRECTIONS_AR : TYPO_CORRECTIONS;
+	const massCorrections = loadMassTypos();
+
+	// Combine hardcoded and generated typos
+	const allCorrections = { ...massCorrections, ...corrections };
 
 	// Sort keys by length descending to replace longest matches first
-	const sortedKeys = Object.keys(corrections).sort((a, b) => b.length - a.length);
+	const sortedKeys = Object.keys(allCorrections).sort((a, b) => b.length - a.length);
 
 	sortedKeys.forEach(typo => {
-		const correct = corrections[typo];
+		const correct = allCorrections[typo];
 		const regex = new RegExp(`(^|\\s)${typo}($|\\s)`, 'gi');
 		corrected = corrected.replace(regex, (match, p1, p2) => `${p1}${correct}${p2}`);
 	});
