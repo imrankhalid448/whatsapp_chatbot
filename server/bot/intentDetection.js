@@ -65,6 +65,12 @@ const MENU_BROWSING_PATTERNS = {
 		'finish order', 'finish my order', 'complete order', 'checkout', 'check out',
 		'pay', 'payment', 'bill', 'receipt', 'done', 'finalise', 'finalize',
 		'i am done', 'im done', 'end order', 'finish'
+	],
+	irrelevant: [
+		'fuck', 'shit', 'bitch', 'asshole', 'pussy', 'dick', 'idiot', 'stupid',
+		'love you', 'miss you', 'marry me', 'kiss', 'babe', 'dear', 'honey',
+		'help me', 'how are you', 'how r u', 'weather', 'news', 'who are you',
+		'what is your name', 'google', 'search', 'find', 'location'
 	]
 };
 
@@ -109,7 +115,12 @@ const MENU_BROWSING_PATTERNS_AR = {
 	browse: ['تصفح', 'استعراض', 'رؤية', 'مشاهدة', 'اطلاع'],
 	questions: ['ماهو', 'ما هي', 'وش', 'ايش', 'شنو', 'شو'],
 	cancel: ['إلغاء الطلب', 'الغاء الطلب', 'إلغاء طلبي', 'الغاء طلبي', 'كنسل', 'إلغاء الكل', 'الغاء الكل', 'إلغاء الطلب بالكامل', 'الغاء بالكامل', 'أريد الإلغاء', 'توقف', 'حذف الطلب', 'إلغاء'],
-	finish: ['إنهاء الطلب', 'انهاء الطلب', 'إنهاء', 'انهاء', 'إتمام الطلب', 'حساب', 'الحساب', 'الفاتورة', 'دفع', 'سداد', 'خلاص', 'خلصنا', 'تم الطلب']
+	finish: ['إنهاء الطلب', 'انهاء الطلب', 'إنهاء', 'انهاء', 'إتمام الطلب', 'حساب', 'الحساب', 'الفاتورة', 'دفع', 'سداد', 'خلاص', 'خلصنا', 'تم الطلب'],
+	irrelevant: [
+		'كلب', 'حمار', 'غبي', 'حيوان', 'يلعن', 'طز', 'احبك', 'اعشقك', 'وحشتني',
+		'ساعدني', 'مساعدة', 'كيف حالك', 'اخبارك', 'الجو', 'الطقس', 'اخبار', 'من انت',
+		'وش اسمك', 'ايش اسمك', 'جوجل', 'بحث', 'موقعكم', 'وينكم'
+	]
 };
 
 const CATEGORY_KEYWORDS_AR = {
@@ -208,6 +219,9 @@ const detectIntent = (text, lang = 'en') => {
 	}
 	for (const finishPattern of PATTERNS_SOURCE.finish) {
 		if (normalized.includes(finishPattern)) return { pattern: finishPattern, intent: 'FINISH_ORDER' };
+	}
+	for (const irrPattern of PATTERNS_SOURCE.irrelevant) {
+		if (normalized.includes(irrPattern)) return { pattern: irrPattern, intent: 'IRRELEVANT' };
 	}
 
 	const KEYWORDS_SOURCE = isAr ? CATEGORY_KEYWORDS_AR : CATEGORY_KEYWORDS;

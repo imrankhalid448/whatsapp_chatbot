@@ -68,7 +68,8 @@ module.exports = {
 		nlp_qty_wraps: "For your {qty} wraps, please select what you would like to add.",
 		nlp_browse_category: "Here are our {name}. Please select which one you would like to add.",
 		nlp_browse_wraps: "Please select which wrap you would like to add.",
-		order_completed: "Your order has been completed."
+		order_completed: "Your order has been completed.",
+		irrelevant_message: "Ok dear, I'm here to help you with your cravings! 🍔 You can order from our delicious menu below:"
 	},
 	ar: {
 		welcome: "مرحبا بكم في مطعم جوانا للوجبات السريعة\nالفروع:\n",
@@ -138,6 +139,7 @@ module.exports = {
 		nlp_qty_wraps: "بالنسبة لـ {qty} لفائف، يرجى اختيار ما تود إضافته.",
 		nlp_browse_category: "تفضل {name}. يرجى اختيار النوع الذي تفضله.",
 		nlp_browse_wraps: "يرجى اختيار نوع اللفائف الذي تفضله.",
-		order_completed: "تم إكمال طلبك."
+		order_completed: "تم إكمال طلبك.",
+		irrelevant_message: "حاضر يا غالي، أنا هنا لمساعدتك في طلب ألذ الوجبات! 🍔 يمكنك الاختيار من قائمتنا الشهية أدناه:"
 	}
 };

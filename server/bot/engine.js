@@ -566,6 +566,21 @@ function processMessage(userId, text) {
         }
         if (explicitIntent.intent === 'BROWSE_ALL_CATEGORIES') { state.step = 'CATEGORY_SELECTION'; return [t.here_is_menu, { type: 'button', body: t.select_option, buttons: [{ id: 'cat_burgers_meals', title: t.burgers_meals }, { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps }, { id: 'cat_snacks_sides', title: t.snacks_sides }] }]; }
         if (explicitIntent.intent === 'BROWSE_CATEGORY') { return processSequentially([{ type: 'CATEGORY', data: { id: explicitIntent.categoryId, title: menu.categories.find(c => c.id === explicitIntent.categoryId).title } }], state.cart, currentLang, state); }
+        if (explicitIntent.intent === 'IRRELEVANT') {
+            state.step = 'CATEGORY_SELECTION';
+            return [
+                t.irrelevant_message,
+                {
+                    type: 'button',
+                    body: t.here_is_menu,
+                    buttons: [
+                        { id: 'cat_burgers_meals', title: t.burgers_meals },
+                        { id: 'cat_sandwiches_wraps', title: t.sandwiches_wraps },
+                        { id: 'cat_snacks_sides', title: t.snacks_sides }
+                    ]
+                }
+            ];
+        }
     }
 
     return [t.didnt_understand + ' ' + t.use_buttons];
