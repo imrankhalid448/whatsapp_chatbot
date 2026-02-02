@@ -67,10 +67,16 @@ const MENU_BROWSING_PATTERNS = {
 		'i am done', 'im done', 'end order', 'finish'
 	],
 	irrelevant: [
-		'fuck', 'shit', 'bitch', 'asshole', 'pussy', 'dick', 'idiot', 'stupid',
-		'love you', 'miss you', 'marry me', 'kiss', 'babe', 'dear', 'honey',
-		'help me', 'how are you', 'how r u', 'weather', 'news', 'who are you',
-		'what is your name', 'google', 'search', 'find', 'location'
+		// Profanity & Insults
+		'fuck', 'shit', 'bitch', 'asshole', 'pussy', 'dick', 'idiot', 'stupid', 'bastard', 'cunt', 'dumb', 'moron', 'fucker', 'motherfucker', 'cocksucker', 'wanker', 'twat', 'prick', 'slut', 'whore', 'jerk', 'loser', 'suck', 'stfu', 'shut up', 'hate you', 'kill yourself', 'kys', 'garbage', 'trash', 'crappy', 'worthless', 'retard', 'scum', 'scumbag', 'degenerate', 'fool', 'donkey', 'pig', 'animal', 'curse', 'dammit', 'hell', 'crap', 'bullshit',
+		// Romance & Compliments
+		'love you', 'miss you', 'marry me', 'kiss', 'babe', 'dear', 'honey', 'sweetie', 'cutie', 'darling', 'beautiful', 'sexy', 'hot', 'gorgeous', 'handsome', 'pretty', 'cool', 'awesome', 'amazing', 'best bot', 'good bot', 'smart bot', 'i like you', 'you are great', 'you are nice', 'my love', 'be mine', 'date me', 'date', 'marriage', 'girlfriend', 'boyfriend', 'hubby', 'wifey', 'sweetheart', 'crush', 'lovey', 'xoxo', 'hugs',
+		// Personal Questions
+		'who are you', 'what is your name', 'what are you', 'how old are you', 'where do you live', 'where are you from', 'are you human', 'are you a bot', 'are you real', 'who made you', 'who created you', 'tell me about yourself', 'what is your gender', 'are you male', 'are you female', 'whats up', 'whatsup', 'how r u', 'how are you', 'how are you doing', 'r u ok', 'are you okay', 'whats your job', 'do you eat', 'do you sleep',
+		// Unrelated Queries
+		'help me', 'weather', 'news', 'time', 'date tomorrow', 'google', 'search', 'facebook', 'instagram', 'tiktok', 'youtube', 'music', 'song', 'video', 'joke', 'tell a joke', 'story', 'history', 'politics', 'bitcoin', 'crypto', 'stocks', 'money', 'rich', 'poor', 'job', 'work', 'school', 'homework', 'math', 'science', 'health', 'doctor', 'hospital', 'police', 'emergency', 'fire', 'car', 'bike', 'plane', 'travel', 'vacation', 'trip', 'games', 'gaming', 'ps5', 'xbox', 'nintendo', 'anime', 'movies', 'series', 'netflix', 'amazon',
+		// Nonsense & Fillers
+		'blabla', 'gibberish', 'random', 'hshshs', 'hahaha', 'lol', 'lmao', 'rofl', 'hehe', 'xd', 'ok ok', 'yea yea', 'nope', 'yup', 'maybe', 'not sure', 'whatever', 'who cares', 'so what', 'and then', 'then what', 'nothing', 'just looking', 'testing', 'test', 'ping', 'pong'
 	]
 };
 
@@ -117,9 +123,16 @@ const MENU_BROWSING_PATTERNS_AR = {
 	cancel: ['إلغاء الطلب', 'الغاء الطلب', 'إلغاء طلبي', 'الغاء طلبي', 'كنسل', 'إلغاء الكل', 'الغاء الكل', 'إلغاء الطلب بالكامل', 'الغاء بالكامل', 'أريد الإلغاء', 'توقف', 'حذف الطلب', 'إلغاء'],
 	finish: ['إنهاء الطلب', 'انهاء الطلب', 'إنهاء', 'انهاء', 'إتمام الطلب', 'حساب', 'الحساب', 'الفاتورة', 'دفع', 'سداد', 'خلاص', 'خلصنا', 'تم الطلب'],
 	irrelevant: [
-		'كلب', 'حمار', 'غبي', 'حيوان', 'يلعن', 'طز', 'احبك', 'اعشقك', 'وحشتني',
-		'ساعدني', 'مساعدة', 'كيف حالك', 'اخبارك', 'الجو', 'الطقس', 'اخبار', 'من انت',
-		'وش اسمك', 'ايش اسمك', 'جوجل', 'بحث', 'موقعكم', 'وينكم'
+		// Insults & Profanity (Dialects)
+		'كلب', 'حمار', 'غبي', 'حيوان', 'يلعن', 'طز', 'خرا', 'زق', 'تفو', 'لحجي', 'ورع', 'ورعان', 'يا ليل', 'اخرس', 'اسكت', 'انطم', 'سد بوزك', 'يا حقير', 'حقير', 'واطي', 'سافل', 'حيوانة', 'كلبة', 'حمارة', 'غبية', 'بقرة', 'ثور', 'تيوس', 'تيس', 'يا غبي', 'يا حمار', 'عنبو', 'لعنة', 'زفت', 'خايس', 'سئ', 'مو زين', 'سيء', 'خبيث', 'لعين', 'مجرم', 'سرواق', 'حرامي', 'كذاب', 'نصاب', 'منافق', 'غشاش', 'يا كذاب',
+		// Romance & Compliments
+		'احبك', 'اعشقك', 'وحشتني', 'يا حبيبي', 'حبيبي', 'يا قلبي', 'قلبي', 'حياتي', 'يا عيوني', 'عيوني', 'يا روحي', 'روحي', 'يا قمر', 'يا عسل', 'عسل', 'سكر', 'حلو', 'زي القمر', 'جميل', 'وسيم', 'مزيون', 'كشخة', 'ذوق', 'رهيب', 'فنان', 'بطل', 'ما شاء الله', 'يا روحي انت', 'اموت فيك', 'اعزك', 'غالي', 'يا غالي', 'يا طيب', 'خدوم', 'شكرا يا عسل', 'وردة', 'بوسة', 'قبلة', 'تزوجني', 'تتزوجيني', 'خطوبة', 'زواج', 'حب', 'غرام', 'عشق', 'وله',
+		// Bot Identity
+		'من انت', 'وش اسمك', 'ايش اسمك', 'مين انت', 'انت انسان', 'انت بوت', 'انت حقيقي', 'مين صنعك', 'مين برمجك', 'ايش شغلتك', 'ليش انت هنا', 'انت ذكر ولا انثى', 'بنت ولا ولد', 'كم عمرك', 'وين ساكن', 'وين بيتكم', 'تعرف تطبخ', 'انت تاكل', 'انت تشرب', 'انت تنام', 'في احد غيرك',
+		// Unrelated Queries
+		'مساعدة', 'ساعدني', 'كيف حالك', 'اخبارك', 'وش علومك', 'طمني عنك', 'الجو', 'الطقس', 'اخبار', 'سياسة', 'كورة', 'مباريات', 'نادي', 'هلال', 'نصر', 'اتحاد', 'شباب', 'الرياض', 'السعودية', 'موسم الرياض', 'وين اروح', 'سفر', 'سياحة', 'فندق', 'مطعم ثاني', 'جوجل', 'بحث', 'فيسبوك', 'تويتر', 'انستقرام', 'تيك توك', 'يوتيوب', 'اغنية', 'فيديو', 'نكتة', 'قول نكتة', 'قصة', 'تاريخ', 'رياضيات', 'علوم', 'مدرسة', 'جامعة', 'دوام', 'شغل', 'وظيفة', 'فلوس', 'غني', 'فقير', 'بيتكوين', 'كريبتو', 'اسهم', 'توقعات', 'شرطة', 'طوارئ', 'اسعاف', 'حريق', 'مستشفى', 'دكتور', 'سوق', 'تسوق', 'سيارات', 'طيارة', 'سفرة', 'اجازة', 'العاب', 'بلايستيشن', 'انمي', 'افلام', 'مسلسلات', 'نتفلكس', 'امازون', 'موقعكم', 'وينكم', 'مكانكم', 'فروعكم', 'وين الفرع',
+		// Fillers & Nonsense
+		'خرابيط', 'كلام فاضي', 'اي شيء', 'مدري', 'ما ادري', 'يمكن', 'ممكن', 'صح', 'خطأ', 'لا لا', 'ايه ايه', 'خلاص خلاص', 'بس بس', 'هيا تعال', 'وش السالفة', 'شالسالفة', 'تست', 'تحربة', 'بيبي', 'باي', 'مع السلامة', 'اشوفك', 'يلا', 'باي باي', 'هيا', 'تست تست'
 	]
 };
 
