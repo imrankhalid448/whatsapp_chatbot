@@ -321,15 +321,40 @@ function processMessage(userId, text) {
     }
 
     if (state.step === 'ITEM_SPICY') {
-        let preference = null;
-        if (cleanText === 'spicy_yes' || cleanText === 'spicy' || cleanText === 'hot') preference = 'spicy';
-        if (cleanText === 'spicy_no' || cleanText === 'non-spicy' || cleanText === 'regular' || cleanText === 'normal' || cleanText === 'non_spicy') preference = 'non-spicy';
+        // 1. Check for SPLIT preference (e.g. "1 spicy 1 regular")
+        const spicyMatch = cleanText.match(/(\d+)\s+(spicy|hot)/i);
+        const regularMatch = cleanText.match(/(\d+)\s+(non-spicy|non_spicy|regular|normal|ordinary|no spicy)/i);
 
-        if (preference) {
-            const itemWithPref = { ...state.currentItem, preference };
-            const qty = state.currentItem.qty || 1;
-            for (let i = 0; i < qty; i++) state.cart.push(itemWithPref);
-            const msg = `${t.added_to_cart} ${qty}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} (${preference === 'spicy' ? t.spicy : t.non_spicy}) ${t.to_your_cart}`;
+        let spicyQty = spicyMatch ? parseInt(spicyMatch[1]) : 0;
+        let regularQty = regularMatch ? parseInt(regularMatch[1]) : 0;
+
+        // If simple "spicy" or "regular" without numbers, use total qty
+        const totalQty = state.currentItem.qty || 1;
+
+        if (cleanText === 'spicy_yes' || (!spicyMatch && (cleanText === 'spicy' || cleanText === 'hot'))) {
+            spicyQty = totalQty;
+        } else if (cleanText === 'spicy_no' || (!regularMatch && (cleanText === 'non-spicy' || cleanText === 'regular' || cleanText === 'normal' || cleanText === 'non_spicy'))) {
+            regularQty = totalQty;
+        }
+
+        if (spicyQty > 0 || regularQty > 0) {
+            // Add Spicy Items
+            if (spicyQty > 0) {
+                const itemSpicy = { ...state.currentItem, preference: 'spicy' };
+                for (let i = 0; i < spicyQty; i++) state.cart.push(itemSpicy);
+            }
+            // Add Regular Items
+            if (regularQty > 0) {
+                const itemRegular = { ...state.currentItem, preference: 'non-spicy' };
+                for (let i = 0; i < regularQty; i++) state.cart.push(itemRegular);
+            }
+
+            const spicyStr = spicyQty > 0 ? `${spicyQty}x ${t.spicy}` : '';
+            const regularStr = regularQty > 0 ? `${regularQty}x ${t.non_spicy}` : '';
+            const summaryStr = [spicyStr, regularStr].filter(Boolean).join(` ${t.and} `);
+            const totalAdded = spicyQty + regularQty;
+
+            const msg = `${t.added_to_cart} ${totalAdded}x ${currentLang === 'ar' ? state.currentItem.name.ar : state.currentItem.name.en} (${summaryStr}) ${t.to_your_cart}`;
             state.step = 'ITEMS_LIST';
             return processSequentially(state.pendingIntents, state.cart, currentLang, state, [msg]);
         }

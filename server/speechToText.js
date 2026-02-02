@@ -1,38 +1,43 @@
 const vosk = require('vosk');
 const fs = require('fs');
+const path = require('path');
 const { Readable } = require('stream');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-const MODEL_PATH = 'model';
+const MODELS_CONFIG = {
+    'en': { path: path.join(__dirname, 'model-en') },
+    'ar': { path: path.join(__dirname, 'model-ar') }
+};
 
-let model = null;
+const loadedModels = {};
 
-function initModel() {
-    if (!fs.existsSync(MODEL_PATH)) {
-        console.error("Vosk model not found at " + MODEL_PATH);
+function initModel(lang = 'en') {
+    const config = MODELS_CONFIG[lang] || MODELS_CONFIG['en'];
+    if (!fs.existsSync(config.path)) {
+        console.error(`Vosk model not found at ${config.path}`);
         return null;
     }
-    if (!model) {
+    if (!loadedModels[lang]) {
+        console.log(`Loading Vosk ${lang} model...`);
         vosk.setLogLevel(-1);
-        model = new vosk.Model(MODEL_PATH);
+        loadedModels[lang] = new vosk.Model(config.path);
     }
-    return model;
+    return loadedModels[lang];
 }
 
-function transcribeAudio(audioBuffer) {
+function transcribeAudio(audioBuffer, lang = 'en') {
     return new Promise((resolve, reject) => {
-        const model = initModel();
+        const model = initModel(lang);
         if (!model) return resolve(null);
 
         const rec = new vosk.Recognizer({ model: model, sampleRate: 16000 });
 
-        // Convert OGG/Audio Buffer to PCM via FFmpeg
         const command = ffmpeg(Readable.from(audioBuffer))
             .audioFrequency(16000)
             .audioChannels(1)
-            .format('s16le') // Raw PCM 16-bit
+            .format('s16le')
             .on('error', (err) => {
                 console.error("FFmpeg error:", err);
                 reject(err);
@@ -40,7 +45,6 @@ function transcribeAudio(audioBuffer) {
 
         const stream = command.pipe();
 
-        const chunks = [];
         stream.on('data', chunk => {
             rec.acceptWaveform(chunk);
         });

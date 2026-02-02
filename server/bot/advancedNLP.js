@@ -105,7 +105,8 @@ const TYPO_CORRECTIONS = {
 	'normal': 'regular', 'normel': 'regular', 'norml': 'regular', 'mild': 'regular',
 	'non-spicy': 'non-spicy', 'nonspicy': 'non-spicy', 'non spicy': 'non-spicy',
 	'no spicy': 'non-spicy', 'no spice': 'non-spicy', 'not spicy': 'non-spicy',
-	'non': 'non-spicy', 'none': 'non-spicy',
+	'know spicy': 'non-spicy', 'know spice': 'non-spicy', 'now spicy': 'non-spicy',
+	'non': 'non-spicy', 'none': 'non-spicy', 'no': 'non-spicy', 'know': 'non-spicy',
 	'adn': 'and', 'nd': 'and', 'amp': 'and',
 
 	// ========== META COMMAND VARIATIONS ==========
