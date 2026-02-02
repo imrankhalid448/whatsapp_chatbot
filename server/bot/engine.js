@@ -320,6 +320,42 @@ function processMessage(userId, text) {
     // ============================================
     // C. ABUSE & IRRELEVANT HANDLING
     // ============================================
+    // ============================================
+    // C. INIT & WELCOME FLOW (FIRST INTERACTION)
+    // ============================================
+    if (state.step === 'INIT') {
+        // Force language logic
+        if (!state.language) {
+            state.language = isArabicInput ? 'ar' : 'en';
+        }
+
+        const tWelcome = translations[state.language];
+
+        // Construct Branch Info Message
+        let branchMsg = state.language === 'ar' ? "📍 *فروعنا:*\n" : "📍 *Our Branches:*\n";
+        branchInfo.branches.forEach(b => {
+            const name = state.language === 'ar' ? b.nameAr : b.name;
+            branchMsg += `• ${name}\n  📞 ${b.phone}\n`;
+        });
+        branchMsg += `\n⏰ ${state.language === 'ar' ? "ساعات العمل: ١٢ م - ٢ ص" : "Hours: 12PM - 2AM"}`;
+
+        state.step = 'CATEGORY_SELECTION';
+
+        return [
+            tWelcome.welcome,
+            branchMsg,
+            {
+                type: 'button',
+                body: tWelcome.here_is_menu,
+                buttons: [
+                    { id: 'cat_burgers_meals', title: tWelcome.burgers_meals },
+                    { id: 'cat_sandwiches_wraps', title: tWelcome.sandwiches_wraps },
+                    { id: 'cat_snacks_sides', title: tWelcome.snacks_sides }
+                ]
+            }
+        ];
+    }
+
     if (isIrrelevant(cleanText, currentLang)) {
         // Basic abuse detection
         const isAbuse = /(bad|stupid|idiot|fuck|shit|hate|ugly|dirty|useless|كلب|حمار|وسخ|غبي|اكرهك|قبيح)/i.test(cleanText);
